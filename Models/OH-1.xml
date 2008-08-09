@@ -1,0 +1,943 @@
+<?xml version="1.0"?>
+
+<!-- Eurocopter OH-1 Helicopter by Tatsuhiro Nishioka, animation set -->
+
+<PropertyList>
+
+
+	<path>OH-1.ac</path>
+
+	<params>
+		<flap>
+			<factor>-0.20</factor>
+		</flap>
+		<flapA>
+			<factor>0.21</factor>
+		</flapA>
+		<flapB>
+			<factor>0.25</factor>
+		</flapB>
+		<flapC>
+			<factor>0.32</factor>
+		</flapC>
+		<flapD>
+			<factor>0.35</factor>
+		</flapD>
+	</params>
+
+	<animation>
+		<name>mainrotors</name>
+		<object-name>blade1</object-name>
+		<object-name>blade1a</object-name>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<object-name>blade2</object-name>
+		<object-name>blade2a</object-name>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<object-name>blade3</object-name>
+		<object-name>blade3a</object-name>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<object-name>blade4</object-name>
+		<object-name>blade4a</object-name>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+	</animation>
+
+	<!-- main rotor tilt-->
+
+	<animation>
+		<type>rotate</type>
+		<object-name>mast</object-name>
+		<object-name>rotorhead</object-name>
+		<object-name>rotorcap</object-name>
+		<object-name>rotorcap.i</object-name>
+		<object-name>bladelever</object-name>
+		<object-name>blurred1</object-name>
+		<object-name>blurred2</object-name>
+		<object-name>blurred3</object-name>
+		<object-name>blurred4</object-name>
+		<offset-deg>5</offset-deg>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+		<center>
+			<x-m>-0.995</x-m>
+			<y-m>0.0</y-m>
+			<z-m>2.939</z-m>
+		</center>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1</object-name>
+		<object-name>blade1a</object-name>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<object-name>blade2</object-name>
+		<object-name>blade2a</object-name>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<object-name>blade3</object-name>
+		<object-name>blade3a</object-name>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<object-name>blade4</object-name>
+		<object-name>blade4a</object-name>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<offset-deg>5</offset-deg>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+		<center>
+			<x-m>-0.995</x-m>
+			<y-m>0.0</y-m>
+			<z-m>2.939</z-m>
+		</center>
+	</animation>
+
+
+
+	<!--main rotor (always visible parts) -->
+
+	<animation>
+		<type>spin</type>
+		<object-name>rotorhead</object-name>
+		<object-name>rotorcap</object-name>
+		<object-name>rotorcap.i</object-name>
+		<object-name>bladelever</object-name>
+		<object-name>blurred1</object-name>
+		<object-name>blurred2</object-name>
+		<object-name>blurred3</object-name>
+		<object-name>blurred4</object-name>
+		<property>/rotors/main/rpm</property>
+		<factor>-0.74</factor>
+		<axis>
+			<x1-m>-1.003</x1-m>
+			<y1-m>0.0</y1-m>
+			<z1-m>3.533</z1-m>
+			<x2-m>-0.995</x2-m>
+			<y2-m>0.0</y2-m>
+			<z2-m>2.939</z2-m>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>spin</type>
+		<object-name>blade1</object-name>
+		<object-name>blade1a</object-name>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<object-name>blade2</object-name>
+		<object-name>blade2a</object-name>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<object-name>blade3</object-name>
+		<object-name>blade3a</object-name>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<object-name>blade4</object-name>
+		<object-name>blade4a</object-name>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<property>/rotors/main/rpm</property>
+		<factor>-1.0</factor>
+		<axis>
+			<x1-m>-1.003</x1-m>
+			<y1-m>0.0</y1-m>
+			<z1-m>3.533</z1-m>
+			<x2-m>-0.995</x2-m>
+			<y2-m>0.0</y2-m>
+			<z2-m>2.939</z2-m>
+		</axis>
+	</animation>
+
+	<!-- main rotor disc -->
+
+	<animation>
+		<type>material</type>
+		<object-name>blurred1</object-name>
+		<object-name>blurred2</object-name>
+		<object-name>blurred3</object-name>
+		<object-name>blurred4</object-name>
+		<transparency>
+			<alpha-prop>rotors/main/rpm</alpha-prop>
+			<factor>0.004</factor>
+			<offset>-0.25</offset>
+			<max>0.4</max>
+		</transparency>
+		<threshold>0.001</threshold>
+	</animation>
+
+
+	<animation>
+		<type>select</type>
+		<object-name>mainrotors</object-name>
+		<condition>
+			<less-than>
+				<property>/rotors/main/rpm</property>
+				<value>175</value>
+			</less-than>
+		</condition>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blurred1</object-name>
+		<object-name>blurred2</object-name>
+		<object-name>blurred3</object-name>
+		<object-name>blurred4</object-name>
+		<property>rotors/main/blade[0]/position-deg</property>
+		<factor>1</factor>
+		<axis>
+			<x>0</x>
+			<y>0</y>
+			<z>1</z>
+		</axis>
+		<center>
+			<x-m>-1.018</x-m>
+			<y-m>0.0</y-m>
+			<z-m>3.250</z-m>
+		</center>
+	</animation>
+
+	<animation>
+		<type>noshadow</type>
+		<object-name>blurred1</object-name>
+		<object-name>blurred2</object-name>
+		<object-name>blurred3</object-name>
+		<object-name>blurred4</object-name>
+	</animation>
+
+	<!-- main rotor blades -->
+
+<!--
+	<animation>
+		<type>material</type>
+		<object-name>mainrotors</object-name>
+		<global type="bool">true</global>
+		<transparency>
+			<alpha-prop>rotors/main/rpm</alpha-prop>
+			<factor>-0.0050</factor>
+			<offset>1</offset>
+			<max>1</max>
+		</transparency>
+	</animation>
+-->
+
+	<animation>
+		<type>rotate</type>
+		<object-name>rotorhead</object-name>
+		<object-name>bladelever</object-name>
+		<property>rotors/main/blade[0]/position-deg</property>
+		<offset-deg>45</offset-deg>
+		<axis>
+			<x>0</x>
+			<y>0</y>
+			<z>1</z>
+		</axis>
+		<center>
+			<x-m>-1.018</x-m>
+			<y-m>0.0</y-m>
+			<z-m>3.250</z-m>
+		</center>
+	</animation>
+
+
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1</object-name>
+		<object-name>blade1a</object-name>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<property>rotors/main/blade[0]/position-deg</property>
+		<factor>1</factor>
+		<offset-deg>0</offset-deg>
+		<axis>
+			<x>0</x>
+			<y>0</y>
+			<z>1</z>
+		</axis>
+		<center>
+			<x-m>-1.018</x-m>
+			<y-m>0.0</y-m>
+			<z-m>3.250</z-m>
+		</center>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade2</object-name>
+		<object-name>blade2a</object-name>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<property>rotors/main/blade[1]/position-deg</property>
+		<factor>1</factor>
+		<offset-deg>90</offset-deg>
+		<axis>
+			<x>0</x>
+			<y>0</y>
+			<z>1</z>
+		</axis>
+		<center>
+			<x-m>-1.018</x-m>
+			<y-m>0.0</y-m>
+			<z-m>3.250</z-m>
+		</center>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade3</object-name>
+		<object-name>blade3a</object-name>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<property>rotors/main/blade[2]/position-deg</property>
+		<factor>1</factor>
+		<offset-deg>180</offset-deg>
+		<axis>
+			<x>0</x>
+			<y>0</y>
+			<z>1</z>
+		</axis>
+		<center>
+			<x-m>-1.018</x-m>
+			<y-m>0.0</y-m>
+			<z-m>3.250</z-m>
+		</center>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade4</object-name>
+		<object-name>blade4a</object-name>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<property>rotors/main/blade[3]/position-deg</property>
+		<factor>1</factor>
+		<offset-deg>275</offset-deg>
+		<axis>
+			<x>0</x>
+			<y>0</y>
+			<z>1</z>
+		</axis>
+		<center>
+			<x-m>-1.018</x-m>
+			<y-m>0.0</y-m>
+			<z-m>3.250</z-m>
+		</center>
+	</animation>
+
+
+	<!--blade1-->
+	<!-- incidence animation and flap-animation-->
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1</object-name>
+		<object-name>blade1a</object-name>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<property>rotors/main/blade[0]/incidence-deg</property>
+		<factor>1.5</factor>
+		<center>
+			<x-m>-0.888</x-m>
+			<y-m>0</y-m>
+			<z-m>3.384</z-m>
+		</center>
+		<axis>
+			<x>1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1</object-name>
+		<object-name>blade1a</object-name>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<property>rotors/main/blade[0]/flap-deg</property>
+		<factor alias="../../params/flap/factor"/>
+		<center>
+			<x-m>-0.894</x-m>
+			<y-m>0</y-m>
+			<z-m>3.485</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1a</object-name>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<property>rotors/main/blade[0]/flap-deg</property>
+		<factor alias="../../params/flapB/factor"/>
+		<center>
+			<x-m>0.336</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1b</object-name>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<property>rotors/main/blade[0]/flap-deg</property>
+		<factor alias="../../params/flapC/factor"/>
+		<center>
+			<x-m>1.163</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1c</object-name>
+		<object-name>blade1d</object-name>
+		<property>rotors/main/blade[0]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>2.004</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade1d</object-name>
+		<property>rotors/main/blade[0]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>2.839</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<!--blade2-->
+	<!-- incidence animation and flap-animation-->
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade2</object-name>
+		<object-name>blade2a</object-name>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<property>rotors/main/blade[0]/incidence-deg</property>
+		<factor>1.5</factor>
+		<center>
+			<x-m>-1.0</x-m>
+			<y-m>-0.102</y-m>
+			<z-m>3.384</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>-1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade2</object-name>
+		<object-name>blade2a</object-name>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<property>rotors/main/blade[1]/flap-deg</property>
+		<factor alias="../../params/flapA/factor"/>
+		<center>
+			<x-m>-1.0</x-m>
+			<y-m>-0.100</y-m>
+			<z-m>3.485</z-m>
+		</center>
+		<axis>
+			<x>-1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade2a</object-name>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<property>rotors/main/blade[1]/flap-deg</property>
+		<factor alias="../../params/flapB/factor"/>
+		<center>
+			<x-m>-1.0</x-m>
+			<y-m>-1.321</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>-1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade2b</object-name>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<property>rotors/main/blade[1]/flap-deg</property>
+		<factor alias="../../params/flapC/factor"/>
+		<center>
+			<x-m>-1.0</x-m>
+			<y-m>-2.158</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>-1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade2c</object-name>
+		<object-name>blade2d</object-name>
+		<property>rotors/main/blade[1]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>-1.0</x-m>
+			<y-m>-2.995</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>-1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade2d</object-name>
+		<property>rotors/main/blade[1]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>-1.0</x-m>
+			<y-m>-3.845</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>-1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<!--blade3-->
+	<!-- incidence animation and flap-animation-->
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade3</object-name>
+		<object-name>blade3a</object-name>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<property>rotors/main/blade[0]/incidence-deg</property>
+		<factor>1.5</factor>
+		<center>
+			<x-m>-1.091</x-m>
+			<y-m>0</y-m>
+			<z-m>3.384</z-m>
+		</center>
+		<axis>
+			<x>-1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade3</object-name>
+		<object-name>blade3a</object-name>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapA/factor"/>
+		<center>
+			<x-m>-1.096</x-m>
+			<y-m>0</y-m>
+			<z-m>3.485</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade3a</object-name>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapB/factor"/>
+		<center>
+			<x-m>-2.317</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade3b</object-name>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapC/factor"/>
+		<center>
+			<x-m>-3.145</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade3c</object-name>
+		<object-name>blade3d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>-3.984</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade3d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>-4.821</x-m>
+			<y-m>0</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<!--blade4-->
+	<!-- incidence animation and flap-animation-->
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade4</object-name>
+		<object-name>blade4a</object-name>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<property>rotors/main/blade[0]/incidence-deg</property>
+		<factor>1.5</factor>
+		<center>
+			<x-m>-0.989</x-m>
+			<y-m>0-102</y-m>
+			<z-m>3.384</z-m>
+		</center>
+		<axis>
+			<x>0</x>
+			<y>1</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade4</object-name>
+		<object-name>blade4a</object-name>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapA/factor"/>
+		<center>
+			<x-m>-0.984</x-m>
+			<y-m>0.103</y-m>
+			<z-m>3.485</z-m>
+		</center>
+		<axis>
+			<x>1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade4a</object-name>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapB/factor"/>
+		<center>
+			<x-m>-0.984</x-m>
+			<y-m>1.311</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade4b</object-name>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapC/factor"/>
+		<center>
+			<x-m>-0.984</x-m>
+			<y-m>2.153</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade4c</object-name>
+		<object-name>blade4d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>-0.984</x-m>
+			<y-m>2.990</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blade4d</object-name>
+		<property>rotors/main/blade[2]/flap-deg</property>
+		<factor alias="../../params/flapD/factor"/>
+		<center>
+			<x-m>-0.984</x-m>
+			<y-m>3.834</y-m>
+			<z-m>3.342</z-m>
+		</center>
+		<axis>
+			<x>1</x>
+			<y>0</y>
+			<z>0</z>
+		</axis>
+	</animation>
+
+
+
+
+	<!--blurred mainrotor cone-->
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blurred1</object-name>
+		<property>/rotors/main/cone-deg</property>
+		<factor>1.5</factor>
+
+		<axis>
+			<x1-m>-2.255</x1-m>
+			<y1-m>0.531</y1-m>
+			<z1-m>3.292</z1-m>
+			<x2-m>-1.609</x2-m>
+			<y2-m>1.233</y2-m>
+			<z2-m>3.292</z2-m>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blurred2</object-name>
+		<property>/rotors/main/cone-deg</property>
+		<factor>1.5</factor>
+		<axis>
+			<x1-m>-0.425</x1-m>
+			<y1-m>1.263</y1-m>
+			<z1-m>3.292</z1-m>
+			<x2-m>0.277</x2-m>
+			<y2-m>0.617</y2-m>
+			<z2-m>3.292</z2-m>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blurred3</object-name>
+		<property>/rotors/main/cone-deg</property>
+		<factor>1.5</factor>
+		<axis>
+			<x1-m>0.320</x1-m>
+			<y1-m>-0.748</y1-m>
+			<z1-m>3.292</z1-m>
+			<x2-m>-0.327</x2-m>
+			<y2-m>-1.450</y2-m>
+			<z2-m>3.292</z2-m>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>rotate</type>
+		<object-name>blurred4</object-name>
+		<property>/rotors/main/cone-deg</property>
+		<factor>1.5</factor>
+		<axis>
+			<x1-m>-1.674</x1-m>
+			<y1-m>-1.318</y1-m>
+			<z1-m>3.292</z1-m>
+			<x2-m>-2.376</x2-m>
+			<y2-m>-0.672</y2-m>
+			<z2-m>3.292</z2-m>
+		</axis>
+	</animation>
+
+	<animation>
+		<type>select</type>
+		<object-name>tailRotor</object-name>
+		<condition>
+			<less-than>
+				<property>/rotors/tail/rpm</property>
+				<value>201</value>
+			</less-than>
+		</condition>
+	</animation>
+
+	<animation>
+		<type>material</type>
+		<object-name>tailRotorDisk</object-name>
+		<transparency>
+			<alpha-prop>rotors/tail/rpm</alpha-prop>
+			<factor>0.0015</factor>
+			<offset>-0.2</offset>
+			<max>0.55</max>
+		</transparency>
+		<threshold>0.001</threshold>
+	</animation>
+
+        <animation>
+		<type>spin</type>
+                <object-name>tailRotor</object-name>
+                <object-name>tailRotorDisk</object-name>
+                <factor>0.74</factor>
+		<property>/rotors/tail/rpm</property>
+                <center>
+                       <x-m>5.40</x-m>
+                       <y-m>0</y-m>
+                       <z-m>1.45</z-m>
+                </center>
+                <axis>
+			<x>0</x>
+			<y>1</y>
+			<z>0</z>
+
+                       <x2-m>-5.40</x2-m>
+                       <y2-m>1</y2-m>
+                       <z2-m>1.45</z2-m>
+               </axis>
+        </animation>
+</PropertyList>
