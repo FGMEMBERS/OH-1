@@ -107,7 +107,7 @@
 -->
 		<control-input axis="/controls/engines/engine[1]/throttle" control="COLLECTIVE"
 					   src0="0.1" src1="1.0"
-					   dst0="-.0007" dst1=".0045"/>
+					   dst0="-.0001" dst1=".0025"/>
 	</rotor>
 
 
