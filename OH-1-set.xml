@@ -347,7 +347,7 @@ EC 135 simulation config.
 				</mod-up>
 			</key>
 
-			-			<key n="123">
+			<key n="123">
 				<name>{</name>
 				<desc>Shutdown Engines</desc>
 				<binding>
@@ -367,37 +367,27 @@ EC 135 simulation config.
 
 			<key n="79">
 				<name>O</name>
-				<desc>Open aerotow hook</desc>
+				<desc>Increase Stabilator</desc>
 				<binding>
-					<command>property-assign</command>
-					<property>/sim/hitches/aerotow/open</property>
-					<value type="bool">true</value>
+					<command>nasal</command>
+					<script>OH1.stabilator.apply(0.1)</script>
 				</binding>
 			</key>
 			<key n="111">
 				<name>o</name>
-				<desc>Lock aerotow hook</desc>
+				<desc>Decrease Stabilator</desc>
 				<binding>
-					<command>property-assign</command>
-					<property>/sim/hitches/aerotow/open</property>
-					<value type="bool">false</value>
+					<command>nasal</command>
+					<script>OH1.stabilator.apply(-0.1)</script>
 				</binding>
 			</key>
 			<key n="15">
 				<name>Ctrl-o</name>
-				<desc>Find aircraft for aerotow</desc>
+				<desc>Toggle manual stabilator</desc>
 				<binding>
-					<command>property-assign</command>
-					<property>/controls/aerotow/find-aircraft</property>
-					<value type="bool">true</value>
+					<command>nasal</command>
+					<script>OH1.stabilator.toggleManual()</script>
 				</binding>
-				<mod-up>
-					<binding>
-						<command>property-assign</command>
-						<property>/controls/aerotow/find-aircraft</property>
-						<value type="bool">false</value>
-					</binding>
-				</mod-up>
 			</key>
 
 		</keyboard>
