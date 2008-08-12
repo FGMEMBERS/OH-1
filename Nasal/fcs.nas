@@ -55,6 +55,7 @@ var SAS = {
     obj.sensitivities = sensitivities; 
     obj.initial_gains = initial_gains;
     props.globals.getNode("/controls/flight/fcs/gains/sas", 1).setValues(obj.initial_gains);
+    setprop("/controls/flight/fcs/sas-enabled", 1);
     return obj;
   },
 
@@ -89,7 +90,12 @@ var SAS = {
   #   axis: one of 'roll', 'pitch', or 'yaw'
   # 
   apply : func(axis) {
+    var status = getprop("/controls/flight/fcs/sas-enabled");
     var input = me.read(axis);
+    if (status == 0) {
+      me.write(axis, input);
+      return;
+    }
     var mach = getprop("/velocities/mach");
     var value = 0;
     var rate = getprop("/orientation/" ~ axis ~ "-rate-degps");
@@ -117,6 +123,7 @@ var CAS = {
     obj.sensitivities = sensitivities; 
     obj.initial_gains = initial_gains;
     props.globals.getNode("/controls/flight/fcs/gains/cas", 1).setValues(obj.initial_gains);
+    setprop("/controls/flight/fcs/cas-enabled", 1);
     return obj;
   },
 
@@ -161,6 +168,11 @@ var CAS = {
 
   apply : func(axis) {
     var input = me.read(axis);
+    var status = getprop("/controls/flight/fcs/cas-enabled");
+    if (status == 0) {
+      me.write(axis, input);
+      return;
+    }
     var cas_command = me.calcCommand(axis, input);
     me.write(axis, cas_command);
   }
@@ -198,11 +210,6 @@ var Stabilator = {
       index = size(me.gainTable) - 2;
     }
     var mod = math.mod(int(math.abs(speed)), 10);
-    setprop("/controls/flight/fcs/stabilator-index", index);
-    setprop("/controls/flight/fcs/stabilator-mod", mod);
-    setprop("/controls/flight/fcs/stabilator-table", me.gainTable[index]);
-    setprop("/controls/flight/fcs/stabilator-table2", me.gainTable[index+1]);
-    
     var position = me.gainTable[index] * ((10 - mod) / 10) + me.gainTable[index-1] * (mod) / 10;
     if (speed < -20) {
       position = - position;
