@@ -90,7 +90,7 @@
 					   dst0="-1.0" dst1="1.0"/>
 		<control-input axis="/controls/engines/engine[1]/throttle" control="COLLECTIVE"
 					   src0="0.1" src1="1.0"
-					   dst0=".00011" dst1=".0030"/>
+					   dst0=".00011" dst1=".0028"/>
 	</rotor>
 
 
@@ -149,7 +149,7 @@
 	<!-- work around bug in native-fdm.cxx:184 -->
 	<tank x="0" y="0" z="0" capacity="0"/>
 	<ballast x="3.0" y="+0.0" z="-0.5" mass="100"/>
-	<ballast x="0.78" y=" 1.1" z="1.1" mass="150"/>
+	<ballast x="0.78" y=" 1.1" z="1.1" mass="350"/>
 	<ballast x="0.78" y="-1.1" z="1.1" mass="150"/>
 
 

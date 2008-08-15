@@ -218,32 +218,15 @@ EC 135 simulation config.
 		</weight>
 
 		<help>
-			<title>EC 135 - background and help</title>
-			<line></line>
-			<line>Informations about the Eurocopter EC 135</line>
-			<line></line>
-			<line>The EC 135 is a light twin, multi-mission helicopter.</line>
-			<line>Eurocopter has two version of it: the EC 135 P2i and the EC 135 T2i</line>
-			<line>P2 stands for the PRATT and WHITNEY PW 206B2 turbine engine with 743 PS (horsepower).</line>
-			<line>T2 stands for TURBOMECA Arrius 2B2 turbine engine with 706 PS.</line>
-			<line>The EC 135 descends from the MBB Bo 108.</line>
-			<line>The Bo 108 was a demonstration prototype for fly-by-wire and has it's descend from the famous Bo 105.</line>
-			<line>When the Eurocopter company was founded, the Bo 108 came with.</line>
-			<line>Eurocopter decided that there was a marcetplace for such a helicopter and the developement went on.</line>
-			<line> From the french partners it got the fenestron, from MBB the hingeless rotor. </line>
-			<line>The fenestron makes it very hard for dangerous situations in the range of the tail rotor</line>
-			<line>and reduces the noise level about 50% to other helicopters</line>
-			<line>That's why the EC 135 is a vey recommanded helicopter for EMS and the police, especially in Europe</line>
-			<line></line>
-			<line>Help</line>
+			<title>OH-1 - help</title>
 			<line></line>
 			<line>starting the engines -> press }-key</line>
 			<line>shut down the engines -> press {-key</line>
 			<line>toggle rotor brake -> press N-key</line>
 			<line>collective -> page up/down- keys</line>
-			<line>Open/ Close doors -> click the menu "OH-1" panel above</line>
-			<line>change livery ->press l-key</line>
-			<line>landinglight ->press g/G-key</line>
+			<line>toggle enable SAS -> press Ctrl-d key</line>
+			<line>toggle enable CAS -> press Ctrl-e key</line>
+			<line>auto hover -> press Ctrl-f key</line>
 
 
 		</help>
@@ -329,6 +312,33 @@ EC 135 simulation config.
 						var p = "/controls/rotor/brake";
 						setprop(p, !getprop(p));
 					</script>
+				</binding>
+			</key>
+
+			<key n="4">
+				<name>Ctrl-d</name>
+				<desc>Toggle SAS enable</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.sas.toggleEnable();</script>
+				</binding>
+			</key>
+
+			<key n="5">
+				<name>Ctrl-e</name>
+				<desc>Toggle CAS enable</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.cas.toggleEnable();</script>
+				</binding>
+			</key>
+
+			<key n="6">
+				<name>Ctrl-f</name>
+				<desc>Toggle AutoHover</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.cas.toggleAutoHover();</script>
 				</binding>
 			</key>
 

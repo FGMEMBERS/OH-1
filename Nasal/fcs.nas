@@ -29,6 +29,28 @@ var FCSFilter = {
     } else {
       setprop(me.output_path ~ "/" ~ axis, value);
     }
+  },
+
+  toggleFilterStatus : func(name) {
+    var messages = ["disengaged", "engaged"];
+    var path = "/controls/flight/fcs/" ~ name ~ "-enabled";
+    var status = getprop(path);
+    setprop(path, 1 - status);
+    screen.log.write(name ~ " " ~ messages[1 - status]);
+  },
+
+  getStatus : func(name) {
+    var path = "/controls/flight/fcs/" ~ name ~ "-enabled";
+    return getprop(path);
+  },
+
+  limit : func(value, range) {
+    if (value > range) {
+      return range;
+    } elsif (value < -range) {
+      return - range;
+    }
+    return value;
   }
 };
 
@@ -57,6 +79,10 @@ var SAS = {
     props.globals.getNode("/controls/flight/fcs/gains/sas", 1).setValues(obj.initial_gains);
     setprop("/controls/flight/fcs/sas-enabled", 1);
     return obj;
+  },
+
+  toggleEnable : func() {
+    me.toggleFilterStatus("sas");
   },
 
   # 
@@ -90,7 +116,7 @@ var SAS = {
   #   axis: one of 'roll', 'pitch', or 'yaw'
   # 
   apply : func(axis) {
-    var status = getprop("/controls/flight/fcs/sas-enabled");
+    var status = me.getStatus("sas");
     var input = me.read(axis);
     if (status == 0) {
       me.write(axis, input);
@@ -117,50 +143,131 @@ var SAS = {
 # CAS : Control Augmentation System - makes your aircraft more meneuverable
 # 
 var CAS = {
-  new : func(initial_gains, sensitivities, input_path, output_path) {
+  new : func(input_gains, output_gains, sensitivities, input_path, output_path) {
     var obj = FCSFilter.new(input_path, output_path);
     obj.parents = [FCSFilter, CAS];
     obj.sensitivities = sensitivities; 
-    obj.initial_gains = initial_gains;
-    props.globals.getNode("/controls/flight/fcs/gains/cas", 1).setValues(obj.initial_gains);
+    obj.input_gains = input_gains;
+    obj.output_gains = output_gains;
+    obj.last_body_fps = {'roll' : 0, 'pitch' : 0};
+    props.globals.getNode("/controls/flight/fcs/gains/cas/input", 1).setValues(obj.input_gains);
+    props.globals.getNode("/controls/flight/fcs/gains/cas/output", 1).setValues(obj.output_gains);
     setprop("/controls/flight/fcs/cas-enabled", 1);
+    setprop("/controls/flight/fcs/auto-hover-enabled", 0);
+    setprop("/controls/flight/fcs/gains/cas/fps-reaction-gain-roll", 0.4);
+    setprop("/controls/flight/fcs/gains/cas/fps-reaction-gain-pitch", -0.05);
     return obj;
   },
 
   calcRollRateAdjustment : func {
     var position = getprop("/orientation/roll-deg");
-    return math.sin(position / 180 * math.pi) / 3;
+    return math.abs(math.sin(position / 180 * math.pi)) / 6;
   },
   
   # FIXME: command for CAS is just a temporal one
   calcCommand: func (axis, input) {
-    var target_input = 0;
-    var gain = me.calcGain(axis);
-    var target_rate = input * gain;
+    var output = 0;
+    var input_gain = me.calcGain(axis);
+    var output_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis);
+    var target_rate = input * input_gain;
     var rate = getprop("/orientation/" ~ axis ~ "-rate-degps");
     var drate = target_rate - rate;
     setprop("/controls/flight/fcs/cas/target_" ~ axis ~ "rate", target_rate);
     setprop("/controls/flight/fcs/cas/delta_" ~ axis, drate);
     if (axis == 'roll') {
-      target_input = (drate / gain - me.calcRollRateAdjustment());
-      setprop("/controlss/flight/fcs/gains/cas/rollAdjust", me.calcRollRateAdjustment());
+       if (math.abs(input > 0.5)) {
+         output = input; # (drate * output_gain - me.calcRollRateAdjustment());
+         setprop("/controls/flight/fcs/gains/cas/rollAdjust", me.calcRollRateAdjustment());
+       } else {
+         var target_deg = input * 90;
+         var roll_deg = getprop("/orientation/roll-deg");
+         var ddeg = target_deg - roll_deg;
+         output = ddeg * output_gain;
+      }
+      output = output + me.calcCounterVBodyFPS(input);
     } else {
-      target_input = drate / gain;
+      output = drate * output_gain;
     }
-    return target_input;
+    return output;
+  },
+
+  toggleEnable : func() {
+    me.toggleFilterStatus("cas");
+  },
+
+  toggleAutoHover : func() {
+    me.toggleFilterStatus("auto-hover");
+  },
+
+  # 
+  # auto hover
+  # 
+  autoHover : func(axis, input) {
+    var position = getprop("/orientation/" ~ axis ~ "-deg");
+    var output_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis);
+    var body_fps = 0;
+    var last_body_fps = me.last_body_fps[axis];
+    var reaction_gain = 0;
+    var heading = getprop("/orientation/heading-deg");
+    var wind_speed_fps = getprop("/environment/wind-speed-kt") * 1.6878099;
+    var wind_direction = getprop("/environment/wind-from-heading-deg");
+    var wind_direction -= heading;
+    if (axis == 'roll') {
+      body_fps = getprop("/velocities/vBody-fps");
+      body_fps -= math.sin(wind_direction / 180 * math.pi) * wind_speed_fps;      
+      reaction_gain = getprop("/controls/flight/fcs/gains/cas/fps-reaction-gain-roll");
+    } elsif (axis == 'pitch') {
+      body_fps = - getprop("/velocities/uBody-fps");
+      body_fps += math.cos(wind_direction / 180 * math.pi) * wind_speed_fps;      
+      reaction_gain = getprop("/controls/flight/fcs/gains/cas/fps-reaction-gain-pitch");
+      output_gain /= 5.0;
+      position -= 8;
+    } else {
+      return me.calcCommand(axis, input);
+    }
+    var counterReaction = me.limit(- position * output_gain, 0.8);
+    
+    setprop("/controls/flight/fcs/cas/counter-reaction-" ~ axis, counterReaction);
+    var counter_fps = body_fps * reaction_gain;
+    counter_fps = me.limit(counter_fps, 0.4);
+    setprop("/controls/flight/fcs/cas/counter-fps-" ~ axis, counter_fps);
+    counterReaction -= counter_fps;
+    return me.limit(counterReaction + input * 0.2, 1.0);
+  },
+
+  calcCounterVBodyFPS : func(input) {
+    var limit = 0.2;
+    if (math.abs(input) > 0.1) {
+      return 0;
+    }
+    var output_gain = getprop("/controls/flight/fcs/gains/cas/output/roll");
+    var heading = getprop("/orientation/heading-deg");
+    var wind_speed_fps = getprop("/environment/wind-speed-kt") * 1.6878099;
+    var wind_direction = getprop("/environment/wind-from-heading-deg");
+    var wind_direction -= heading;
+    var vbody_fps = getprop("/velocities/vBody-fps");
+    vbody_fps -= math.sin(wind_direction / 180 * math.pi) * wind_speed_fps;      
+    var counterReaction = - vbody_fps * 1.5 * output_gain;
+    setprop("/controls/flight/fcs/counter-reaction-vbody-fps", counterReaction);
+    if (counterReaction > 0.2) {
+      counterReaction = 0.2;
+    } elsif (counterReaction < -0.2) {
+      counterReaction = -0.2;
+    }
+    return counterReaction ;
   },
 
   # FixMe: gain should be calculated using both speed and dynamic pressure
   calcGain : func(axis) {
     var mach = getprop("/velocities/mach");
-    var initial_gain = getprop("/controls/flight/fcs/gains/cas/" ~ axis);
-    var gain = initial_gain;
+    var input_gain = getprop("/controls/flight/fcs/gains/cas/input/" ~ axis);
+    var gain = input_gain;
     if (axis == 'pitch') {
       gain += 0.1 * mach * mach;
     } elsif (axis== 'yaw') {
-      gain *= (mach * mach);
+      gain *= ((1 - mach) * (1 - mach));
     }
-    if (gain * initial_gain < 0.0 ) {
+    if (gain * input_gain < 0.0 ) {
       gain = 0;
     }
     return gain;
@@ -168,12 +275,18 @@ var CAS = {
 
   apply : func(axis) {
     var input = me.read(axis);
-    var status = getprop("/controls/flight/fcs/cas-enabled");
+    var hover = me.getStatus("auto-hover");
+    var status = me.getStatus("cas");
+    var cas_command = 0;
     if (status == 0) {
       me.write(axis, input);
       return;
     }
-    var cas_command = me.calcCommand(axis, input);
+    if (hover == 1) {
+      cas_command = me.autoHover(axis, input);
+    } else {
+      cas_command = me.calcCommand(axis, input);
+    }
     me.write(axis, cas_command);
   }
 };
@@ -186,8 +299,9 @@ var Stabilator = {
     var obj = { parents : [Stabilator] };
     setprop("/controls/flight/fcs/gains/stabilator", -1.8);
     setprop("/controls/flight/fcs/auto-stabilator", 1);
-                   #   0   10     20   30   40   50    60   70   80   90  100  110  120  130  140  150  160, 170, 180, .....
-   me.gainTable = [-0.9, -0.8, -0.7, -0.5, 0.0, 0.60, 0.75, 0.9, 1.0, 1.0, 0.8, 0.7, 0.6, 0.5, 0.4, 0.1, -0.1, -0.3, -0.5, -1.0];
+                   #   0    10   20    30   40   50   60   70   80   90  100  110  120  130  140  150  160, 170, 180, .....
+   me.gainTable =  [-0.9, -0.8, 0.1, -0.5, 0.0, 0.7, 0.8, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.8, 0.6, 0.4, 0.2, -1.0];
+#   me.gainTable = [-0.9, -0.8, -0.7, -0.5, 0.0, 0.60, 0.75, 0.9, 1.0, 1.0, 0.8, 0.7, 0.6, 0.5, 0.4, 0.1, -0.1, -0.3, -0.5, -1.0];
 #   me.gainTable = [-0.9, -0.8, -0.7, -0.5, 0.0, 0.60, 0.75, 0.9, 1.0, 1.0, 1.0, 0.9, 0.8, 0.7, 0.5, 0.3, 0.1, -0.2, -0.4, -1.0];
     return obj;
   },
@@ -228,24 +342,6 @@ var Stabilator = {
     var stabilator_norm = 0;
 
     stabilator_norm = me.calcPosition();   
-
-#    if (gain > 0) {
-#      stabilator_norm = - gain * math.sqrt(math.abs(mach) * 3.3) + 0.7;
-#    } elsif (gain < 0) {
-#      stabilator_norm = - gain * math.sqrt(math.abs(mach) * 3.3) - 0.7;
-#    } else {
-#      stabilator_norm = 0;
-#    }
-#    
-#    if (mach < 0) {
-#      stabilator_norm = - stabilator_norm; 
-#    }
-#    if (stabilator_norm > 1) {
-#      stabilator_norm = 1.0;
-#    } elsif (stabilator_norm < -1) {
-#      stabilator_norm = -1.0;
-#    }
-#
     setprop("/controls/flight/fcs/stabilator", stabilator_norm);
   }
 };
@@ -254,10 +350,11 @@ var sas = nil;
 var cas = nil;
 var stabilator = nil;
 
-var sensitivities = {'roll' : 0.5, 'pitch' : 0.3, 'yaw' : 0.2 };
+# var sensitivities = {'roll' : 2.0, 'pitch' : 1.0, 'yaw' : 1.0 };
+var sensitivities = {'roll' : 1.0, 'pitch' : 1.0, 'yaw' : 3.0 };
 var sas_initial_gains = {'roll' : 0.02, 'pitch' : -0.10, 'yaw' : 0.04 };
-var cas_initial_gains = {'roll' : 30, 'pitch' : -20, 'yaw' : 35 };
-#var cas_initial_gains = {'roll' : 10, 'pitch' : -10, 'yaw' : 10 };
+var cas_input_gains = {'roll' : 30, 'pitch' : -30, 'yaw' : 35 };
+var cas_output_gains = {'roll' : 0.02, 'pitch' : -0.5, 'yaw' : 0.6 };
 
 var update = func {
   if (cas != nil) {
@@ -273,9 +370,9 @@ var update = func {
 }
 
 var initialize = func {
-#  cas = CAS.new(cas_initial_gains, sensitivities, nil, "/controls/flight/fcs/cas");
-#  sas = SAS.new(sas_initial_gains, sensitivities, 0.4, "/controls/flight/fcs/cas", "/controls/flight/fcs");
-  sas = SAS.new(sas_initial_gains, sensitivities, 0.35, nil, "/controls/flight/fcs");
+  cas = CAS.new(cas_input_gains, cas_output_gains, sensitivities, nil, "/controls/flight/fcs/cas");
+  sas = SAS.new(sas_initial_gains, sensitivities, 0.2, "/controls/flight/fcs/cas", "/controls/flight/fcs");
+#  sas = SAS.new(sas_initial_gains, sensitivities, 0.3, nil, "/controls/flight/fcs");
   stabilator = Stabilator.new();
   settimer(update, 0);
 }
