@@ -338,7 +338,7 @@ EC 135 simulation config.
 				<desc>Toggle AutoHover</desc>
 				<binding>
 					<command>nasal</command>
-					<script>OH1.cas.toggleAutoHover();</script>
+					<script>OH1.afcs.toggleAutoHover();</script>
 				</binding>
 			</key>
 
@@ -371,7 +371,7 @@ EC 135 simulation config.
 				<desc>Start Engines</desc>
 				<binding>
 					<command>nasal</command>
-					<script>OH1.engines(1)</script>
+					<script>OH1.crashed=0; OH1.engines(1)</script>
 				</binding>
 			</key>
 

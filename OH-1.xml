@@ -19,7 +19,7 @@
 	  mincyclicail="-6" maxcyclicail="4"
 	  mincyclicele="-4.7" maxcyclicele="14.5"
 	  diameter="11.6" numblades="4" weightperblade="60" relbladecenter="0.5"
-	  dynamic="1" rpm="394" rellenflaphinge="0.2" delta3="0.0"
+	  dynamic="1" rpm="365" rellenflaphinge="0.2" delta3="0.0"
 	  delta=".25"
 	  pitch-a="10"
 	  pitch-b="15"
@@ -34,7 +34,7 @@
 	  ground-effect-constant="0.1"
 	  twist="-8.5"
 	  taper="1"
-	  chord="0.31"
+	  chord="0.38"
 	  number-of-segments="8"
 	  number-of-parts="8"
 	  rel-len-where-incidence-is-measured="0.7"
@@ -95,7 +95,7 @@
 
 
 	<rotorgear
-	  max-power-engine="2370"
+	  max-power-engine="1185"
 	  max-power-rotor-brake="100"
 	  rotorgear-friction="1.4"
 	  engine-prop-factor="0.005"
