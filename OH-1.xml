@@ -88,9 +88,9 @@
 		<control-input axis="/controls/flight/fcs/yaw" control="COLLECTIVE" invert="true"
 					   src0="-1.0" src1="1.0"
 					   dst0="-1.0" dst1="1.0"/>
-		<control-input axis="/controls/engines/engine[1]/throttle" control="COLLECTIVE"
-					   src0="0.1" src1="1.0"
-					   dst0=".00011" dst1=".0028"/>
+		<control-input axis="/controls/flight/fcs/tail-rotor/throttle" control="COLLECTIVE"
+					   src0="-1.0" src1="1.0"
+					   dst0="-1.0" dst1="1.0"/>
 	</rotor>
 
 

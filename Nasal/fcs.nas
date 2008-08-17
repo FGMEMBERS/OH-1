@@ -18,7 +18,7 @@ var FCSFilter = {
       return getprop("/controls/flight/" ~ me.axis_conv[axis]);
     } else { 
       var value = getprop(me.input_path ~ "/" ~ axis);
-      value = int(value * 100) / 100.0;
+      value = int(value * 1000) / 1000.0;
     }
   },
 
@@ -433,16 +433,62 @@ var Stabilator = {
   }
 };
 
+var TailRotorCollective = {
+  new : func(minimum=0.10, maximum=1.0, low_limit=0.00011, high_limit=0.0035) {
+    var obj = FCSFilter.new("/controls/engines/engine[1]", "/controls/flight/fcs/tail-rotor");
+    obj.parents = [FCSFilter, TailRotorCollective];
+    obj.adjuster = 0.0;
+    setprop("/controls/flight/fcs/tail-rotor/src-minimum", minimum);
+    setprop("/controls/flight/fcs/tail-rotor/src-maximum", maximum);
+    setprop("/controls/flight/fcs/tail-rotor/low-limit", low_limit);
+    setprop("/controls/flight/fcs/tail-rotor/high-limit", high_limit);
+    setprop("/controls/flight/fcs/gains/tail-rotor/error-adjuster-gain", 0.003);
+    return obj;
+  },
+
+  update : func() {
+    var throttle = me.read("throttle");
+    var pedal_pos_deg = getprop("/controls/flight/fcs/yaw");
+    var cas_input = cas.read('yaw');
+    var cas_input_gain = cas.calcGain('yaw');
+    var target_rate = cas_input * cas_input_gain;
+    var rate = getprop("/orientation/yaw-rate-degps");
+    var error_rate = target_rate - rate;
+    var error_adjuster_gain = getprop("/controls/flight/fcs/gains/tail-rotor/error-adjuster-gain");
+
+    var minimum = getprop("/controls/flight/fcs/tail-rotor/src-minimum");
+    var maximum = getprop("/controls/flight/fcs/tail-rotor/src-maximum");
+    var low_limit = getprop("/controls/flight/fcs/tail-rotor/low-limit");
+    var high_limit = getprop("/controls/flight/fcs/tail-rotor/high-limit");
+    var output = 0;
+    var range = maximum - minimum;
+    
+    if (throttle < minimum) {
+      output = low_limit;
+    } elsif (throttle > maximum) {
+      output = high_limit;
+    } else {
+      output = low_limit  + (throttle - minimum) / range * (high_limit - low_limit);
+    } 
+
+    # CAS driven tail rotor thrust adjuster
+    me.adjuster -= error_rate * error_adjuster_gain;
+    output += me.adjuster;
+    me.write("throttle", output);
+  }
+};
+
 var sas = nil;
 var cas = nil;
 var afcs = nil;
 var stabilator = nil;
+var tail = nil;
 var count = 0;
 
 var sensitivities = {'roll' : 1.0, 'pitch' : 1.0, 'yaw' : 3.0 };
 var sas_initial_gains = {'roll' : 0.02, 'pitch' : -0.10, 'yaw' : 0.04 };
-var cas_input_gains = {'roll' : 30, 'pitch' : -30, 'yaw' : 35 };
-var cas_output_gains = {'roll' : 0.02, 'pitch' : -0.5, 'yaw' : 6.0 };
+var cas_input_gains = {'roll' : 30, 'pitch' : -30, 'yaw' : 30 };
+var cas_output_gains = {'roll' : 0.02, 'pitch' : -0.5, 'yaw' : 0.5 };
 
 var update = func {
   count += 1;
@@ -462,6 +508,7 @@ var update = func {
   sas.apply('pitch');
   sas.apply('yaw');
   stabilator.update();
+  tail.update();
 }
 
 var initialize = func {
@@ -469,6 +516,7 @@ var initialize = func {
   afcs = AFCS.new("/controls/flight/fcs/cas", "/controls/flight/fcs/afcs");
   sas = SAS.new(sas_initial_gains, sensitivities, 0.2, "/controls/flight/fcs/afcs", "/controls/flight/fcs");
   stabilator = Stabilator.new();
+  tail = TailRotorCollective.new();
   setlistener("/rotors/main/cone-deg", update);
 }
 
