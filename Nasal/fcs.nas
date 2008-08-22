@@ -52,7 +52,16 @@ var FCSFilter = {
       return - range;
     }
     return value;
-  }
+  },
+
+  max : func(val1, val2) {
+    return (val1 > val2) ? val1 : val2;
+  },
+
+  min : func(val1, val2) {
+    return (val1 > val2) ? val2 : val1;
+  },
+
 };
 
 #
@@ -288,6 +297,9 @@ var CAS = {
     obj.output_gains = output_gains;
     props.globals.getNode("/controls/flight/fcs/gains/cas/input", 1).setValues(obj.input_gains);
     props.globals.getNode("/controls/flight/fcs/gains/cas/output", 1).setValues(obj.output_gains);
+    setprop("/controls/flight/fcs/gains/cas/input/attitude-roll", 80);
+    setprop("/controls/flight/fcs/gains/cas/output/roll-brake-freq", 10);
+    setprop("/controls/flight/fcs/gains/cas/output/roll-brake", 0.4);
     setprop("/controls/flight/fcs/cas-enabled", 1);
     return obj;
   },
@@ -312,12 +324,13 @@ var CAS = {
          output = input; # (drate * output_gain - me.calcRollRateAdjustment());
          setprop("/controls/flight/fcs/gains/cas/rollAdjust", me.calcRollRateAdjustment());
        } else {
-         var target_deg = (input * 90) / 0.7;
-         var roll_deg = getprop("/orientation/roll-deg");
-         var ddeg = target_deg - roll_deg;
-         output = ddeg * output_gain;
+         output = me.calcAttitudeCommand(axis);
+#         var target_deg = (input * 90) / 0.7;
+#         var roll_deg = getprop("/orientation/roll-deg");
+#         var ddeg = target_deg - roll_deg;
+#         output = ddeg * output_gain;
       }
-      output = output + me.calcCounterVBodyFPS(input);
+#      output = output + me.calcCounterVBodyFPS(input);
     } else {
       output = drate * output_gain;
     }
@@ -327,6 +340,39 @@ var CAS = {
   toggleEnable : func() {
     me.toggleFilterStatus("cas");
   },
+
+  calcAttitudeCommand : func(axis) {
+    var input_gain = getprop("/controls/flight/fcs/gains/cas/input/attitude-" ~ axis);
+    var output_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis);
+    var brake_freq = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis ~ "-brake-freq");
+    var brake_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis ~ "-brake");
+
+    var current_deg = getprop("/orientation/" ~ axis ~ "-deg");
+    var rate = getprop("/orientation/" ~ axis ~ "-rate-degps");
+    var target_deg = me.read(axis) * input_gain;
+    var command_deg = 0;
+    if (target_deg != 0) {
+      command_deg = (0.094 * math.ln(math.abs(target_deg)) + 0.53) * target_deg;
+    }
+
+    var error_deg = command_deg - current_deg;
+    var brake_deg = (error_deg - rate / brake_freq) * math.abs(error_deg) * brake_gain;
+
+    if (command_deg > 0) {
+      brake_deg = me.min(brake_deg, 0);
+    } else {
+      brake_deg = me.max(brake_deg, 0);
+    }
+# print("target, current, command, brake = " ~ target_deg ~ ", " ~ current_deg ~ ", " ~ command_deg ~ ", " ~ brake_deg ~ "\n");
+    setprop("/controls/flight/fcs/cas/target_deg", target_deg);
+    setprop("/controls/flight/fcs/cas/command_deg", command_deg);
+    setprop("/controls/flight/fcs/cas/brake_deg", brake_deg);
+    setprop("/controls/flight/fcs/cas/roll-deg", current_deg);
+    setprop("/controls/flight/fcs/cas/roll-rate", rate);
+
+    return (error_deg + brake_deg) * output_gain;
+  },
+
 
   calcCounterVBodyFPS : func(input) {
     var limit = 0.2;
@@ -488,7 +534,7 @@ var count = 0;
 var sensitivities = {'roll' : 1.0, 'pitch' : 1.0, 'yaw' : 3.0 };
 var sas_initial_gains = {'roll' : 0.02, 'pitch' : -0.10, 'yaw' : 0.04 };
 var cas_input_gains = {'roll' : 30, 'pitch' : -30, 'yaw' : 30 };
-var cas_output_gains = {'roll' : 0.02, 'pitch' : -0.5, 'yaw' : 0.5 };
+var cas_output_gains = {'roll' : 0.06, 'pitch' : -0.5, 'yaw' : 0.5 };
 
 var update = func {
   count += 1;
