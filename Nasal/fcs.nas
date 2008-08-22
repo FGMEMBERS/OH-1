@@ -297,9 +297,8 @@ var CAS = {
     obj.output_gains = output_gains;
     props.globals.getNode("/controls/flight/fcs/gains/cas/input", 1).setValues(obj.input_gains);
     props.globals.getNode("/controls/flight/fcs/gains/cas/output", 1).setValues(obj.output_gains);
-    setprop("/controls/flight/fcs/gains/cas/input/attitude-roll", 80);
-    setprop("/controls/flight/fcs/gains/cas/output/roll-brake-freq", 10);
-    setprop("/controls/flight/fcs/gains/cas/output/roll-brake", 0.4);
+    setprop("/autopilot/locks/altitude", '');
+    setprop("/autopilot/locks/heading", '');
     setprop("/controls/flight/fcs/cas-enabled", 1);
     return obj;
   },
@@ -307,6 +306,17 @@ var CAS = {
   calcRollRateAdjustment : func {
     var position = getprop("/orientation/roll-deg");
     return math.abs(math.sin(position / 180 * math.pi)) / 6;
+  },
+
+  calcSideSlipAdjustment : func {
+    var mach = getprop("/velocities/mach");
+    var slip = getprop("/orientation/side-slip-deg");
+    if (mach < 0.045) { # works only if air speed > 30kt
+      slip = 0;
+    }
+    var anti_slip_gain = getprop("/controls/flight/fcs/gains/cas/output/anti-side-slip-gain");
+    setprop("/controls/flight/fcs/cas/anti-side-slip", slip * anti_slip_gain);
+    return slip * anti_slip_gain;
   },
   
   # FIXME: command for CAS is just a temporal one
@@ -317,20 +327,19 @@ var CAS = {
     var target_rate = input * input_gain;
     var rate = getprop("/orientation/" ~ axis ~ "-rate-degps");
     var drate = target_rate - rate;
+    var locks = {'pitch' : getprop("/autopilot/locks/altitude"),
+                 'roll' : getprop("/autopilot/locks/heading")};
     setprop("/controls/flight/fcs/cas/target_" ~ axis ~ "rate", target_rate);
     setprop("/controls/flight/fcs/cas/delta_" ~ axis, drate);
-    if (axis == 'roll') {
-       if (math.abs(input > 0.7)) {
-         output = input; # (drate * output_gain - me.calcRollRateAdjustment());
-         setprop("/controls/flight/fcs/gains/cas/rollAdjust", me.calcRollRateAdjustment());
+    
+    if (axis == 'roll' or axis == 'pitch') {
+       if (math.abs(input > 0.7) or locks[axis] != '') {
+         output = drate * output_gain;
        } else {
          output = me.calcAttitudeCommand(axis);
-#         var target_deg = (input * 90) / 0.7;
-#         var roll_deg = getprop("/orientation/roll-deg");
-#         var ddeg = target_deg - roll_deg;
-#         output = ddeg * output_gain;
       }
-#      output = output + me.calcCounterVBodyFPS(input);
+    } elsif (axis == 'yaw') {
+      output = drate * output_gain + me.calcSideSlipAdjustment();
     } else {
       output = drate * output_gain;
     }
@@ -363,12 +372,13 @@ var CAS = {
     } else {
       brake_deg = me.max(brake_deg, 0);
     }
-# print("target, current, command, brake = " ~ target_deg ~ ", " ~ current_deg ~ ", " ~ command_deg ~ ", " ~ brake_deg ~ "\n");
-    setprop("/controls/flight/fcs/cas/target_deg", target_deg);
-    setprop("/controls/flight/fcs/cas/command_deg", command_deg);
-    setprop("/controls/flight/fcs/cas/brake_deg", brake_deg);
-    setprop("/controls/flight/fcs/cas/roll-deg", current_deg);
-    setprop("/controls/flight/fcs/cas/roll-rate", rate);
+
+    var monitor_prefix = me.output_path ~ "/" ~ axis;
+    setprop(monitor_prefix ~ "-target_deg", target_deg);
+    setprop(monitor_prefix ~ "-error_deg", error_deg);
+    setprop(monitor_prefix ~ "-brake_deg", brake_deg);
+    setprop(monitor_prefix ~ "-deg", current_deg);
+    setprop(monitor_prefix ~ "-rate", -rate);
 
     return (error_deg + brake_deg) * output_gain;
   },
@@ -488,7 +498,7 @@ var TailRotorCollective = {
     setprop("/controls/flight/fcs/tail-rotor/src-maximum", maximum);
     setprop("/controls/flight/fcs/tail-rotor/low-limit", low_limit);
     setprop("/controls/flight/fcs/tail-rotor/high-limit", high_limit);
-    setprop("/controls/flight/fcs/gains/tail-rotor/error-adjuster-gain", 0.003);
+    setprop("/controls/flight/fcs/gains/tail-rotor/error-adjuster-gain", -0.5);
     return obj;
   },
 
@@ -499,7 +509,7 @@ var TailRotorCollective = {
     var cas_input_gain = cas.calcGain('yaw');
     var target_rate = cas_input * cas_input_gain;
     var rate = getprop("/orientation/yaw-rate-degps");
-    var error_rate = target_rate - rate;
+    var error_rate = getprop("/controls/flight/fcs/cas/delta_yaw");
     var error_adjuster_gain = getprop("/controls/flight/fcs/gains/tail-rotor/error-adjuster-gain");
 
     var minimum = getprop("/controls/flight/fcs/tail-rotor/src-minimum");
@@ -518,8 +528,13 @@ var TailRotorCollective = {
     } 
 
     # CAS driven tail rotor thrust adjuster
-    me.adjuster -= error_rate * error_adjuster_gain;
+    me.adjuster = error_rate * error_adjuster_gain;
+    me.adjuster = me.limit(me.adjuster, 0.3);
     output += me.adjuster;
+
+    setprop("/controls/flight/fcs/tail-rotor/error-rate", error_rate);
+    setprop("/controls/flight/fcs/tail-rotor/adjuster", me.adjuster);
+
     me.write("throttle", output);
   }
 };
@@ -533,8 +548,12 @@ var count = 0;
 
 var sensitivities = {'roll' : 1.0, 'pitch' : 1.0, 'yaw' : 3.0 };
 var sas_initial_gains = {'roll' : 0.02, 'pitch' : -0.10, 'yaw' : 0.04 };
-var cas_input_gains = {'roll' : 30, 'pitch' : -30, 'yaw' : 30 };
-var cas_output_gains = {'roll' : 0.06, 'pitch' : -0.5, 'yaw' : 0.5 };
+var cas_input_gains = {'roll' : 30, 'pitch' : -60, 'yaw' : 30, 
+                       'attitude-roll' : 80, 'attitude-pitch' : -80 };
+var cas_output_gains = {'roll' : 0.06, 'pitch' : -0.1, 'yaw' : 0.5, 
+                        'roll-brake-freq' : 10, 'pitch-brake-freq' : 3, 
+                        'roll-brake' : 0.4, 'pitch-brake' : 6, 
+                        'anti-side-slip-gain' : -4.5};
 
 var update = func {
   count += 1;
@@ -560,7 +579,7 @@ var update = func {
 var initialize = func {
   cas = CAS.new(cas_input_gains, cas_output_gains, sensitivities, nil, "/controls/flight/fcs/cas");
   afcs = AFCS.new("/controls/flight/fcs/cas", "/controls/flight/fcs/afcs");
-  sas = SAS.new(sas_initial_gains, sensitivities, 0.2, "/controls/flight/fcs/afcs", "/controls/flight/fcs");
+  sas = SAS.new(sas_initial_gains, sensitivities, 0.15, "/controls/flight/fcs/afcs", "/controls/flight/fcs");
   stabilator = Stabilator.new();
   tail = TailRotorCollective.new();
   setlistener("/rotors/main/cone-deg", update);
