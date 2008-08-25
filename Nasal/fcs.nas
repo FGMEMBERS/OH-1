@@ -9,6 +9,9 @@ var FCSFilter = {
                 input_path : input_path,
                 output_path : output_path };
     obj.axis_conv = {'roll' : 'aileron', 'pitch' : 'elevator', 'yaw' : 'rudder' };
+    obj.body_conv = {'roll' : 'v', 'pitch' : 'u' };
+    obj.last_body_fps = {'roll' : 0.0, 'pitch' : 0.0 };
+    obj.last_pos = {'roll' : 0.0, 'pitch' : 0.0, 'yaw' : 0.0};
     return obj;
   },
 
@@ -62,6 +65,67 @@ var FCSFilter = {
     return (val1 > val2) ? val2 : val1;
   },
 
+  calcCounterBodyFPS : func(axis, input, offset_deg) {
+    var position = getprop("/orientation/" ~ axis ~ "-deg");
+    var body_fps = 0;
+    var last_body_fps = me.last_body_fps[axis];
+    var reaction_gain = 0;
+    var heading = getprop("/orientation/heading-deg");
+    var wind_speed_fps = getprop("/environment/wind-speed-kt") * 1.6878099;
+    var wind_direction = getprop("/environment/wind-from-heading-deg");
+    var wind_direction -= heading;
+    var rate = getprop("/orientation/" ~ axis ~ "-rate-degps");
+    var gear_pos = getprop("/gear/gear[0]/compression-norm") + getprop("/gear/gear[1]/compression-norm");
+    var counter_fps = 0;
+    var fps_axis = me.body_conv[axis]; # convert from {roll, pitch} to {u, v}
+    var target_pos = offset_deg;
+    var brake_deg = 0;
+
+    body_fps = getprop("/velocities/" ~ fps_axis ~ "Body-fps");
+    if (axis == 'roll') {
+      var wind_fps = math.sin(wind_direction / 180 * math.pi) * wind_speed_fps; 
+    } else {
+      var wind_fps = math.cos(wind_direction / 180 * math.pi) * wind_speed_fps; 
+    }
+    var brake_freq = getprop("/controls/flight/fcs/gains/afcs/fps-" ~ axis ~ "-brake-freq");
+    var brake_gain = getprop("/controls/flight/fcs/gains/afcs/fps-brake-gain-" ~ axis);
+    body_fps -= wind_fps;
+    var dfps = body_fps - me.last_body_fps[axis];
+    var fps_coeff = getprop("/controls/flight/fcs/gains/afcs/fps-" ~ axis ~ "-coeff");
+    target_pos -= int(body_fps * 10) / 10 * fps_coeff;
+    if (axis == 'roll' and gear_pos > 0.0 and position > 0) {
+      target_pos -= position * gear_pos / 5;
+    }
+    reaction_gain = getprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-" ~ axis);
+    var brake_sensitivity = (axis == 'roll') ? 1 : 1;
+    if (math.abs(position + rate / brake_freq * brake_sensitivity) > math.abs(target_pos)) {
+      if (math.abs(dfps) > 1) {
+        dfps = 1;
+      }
+      var error_deg = target_pos - position;
+#      brake_deg = (error_deg - rate / brake_freq)) * math.abs(dfps * 10) * brake_gain;
+      brake_deg = (error_deg - rate / brake_freq) * math.abs(error_deg) * brake_gain;
+      if (target_pos > 0) {
+        brake_deg = me.min(brake_deg, 0);
+      } else {
+        brake_deg = me.max(brake_deg, 0);
+      }
+    }
+    counter_fps = me.limit((target_pos + brake_deg) * reaction_gain, 1.0);
+
+    setprop("/controls/flight/fcs/afcs/ah-" ~ fps_axis ~ "body-fps", body_fps);
+    setprop("/controls/flight/fcs/afcs/ah-" ~ fps_axis ~ "body-wind-fps", wind_fps);
+    setprop("/controls/flight/fcs/afcs/ah-" ~ axis ~ "-target-deg", target_pos);
+    setprop("/controls/flight/fcs/afcs/ah-" ~ axis ~ "-rate", rate);
+    setprop("/controls/flight/fcs/afcs/ah-delta-" ~ fps_axis ~ "body-fps", dfps);
+    setprop("/controls/flight/fcs/afcs/ah-" ~ axis ~ "-brake-deg", brake_deg);
+
+    setprop("/controls/flight/fcs/afcs/counter-fps-" ~ axis, counter_fps);
+    me.last_pos[axis] = position;
+    me.last_body_fps[axis] = body_fps;
+    return me.limit(counter_fps + input * 0.2, 1.0);
+  },
+
 };
 
 #
@@ -71,15 +135,15 @@ var AFCS = {
   new : func(input_path, output_path) {
     var obj = FCSFilter.new(input_path, output_path);
     obj.parents = [FCSFilter, AFCS];
-    obj.last_body_fps = {'roll' : 0, 'pitch' : 0};
-    obj.last_pos = {'roll' : 0.0, 'pitch' : 0.0, 'yaw' : 0.0};
     setprop("/controls/flight/fcs/auto-hover-enabled", 0);
-    setprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-roll", 0.4);
-    setprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-pitch", -1.9);
-    setprop("/controls/flight/fcs/gains/afcs/fps-roll-coeff", 0.5);
-    setprop("/controls/flight/fcs/gains/afcs/fps-roll-brake-freq", 3);
-    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-coeff", 0.5);
-    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-brake-freq", 0.6);
+    setprop("/controls/flight/fcs/gains/afcs/fps-brake-gain-pitch", 0.06);
+    setprop("/controls/flight/fcs/gains/afcs/fps-brake-gain-roll", 0.025);
+    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-brake-freq", 8);
+    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-coeff", -0.9);
+    setprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-pitch", -1.83);
+    setprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-roll", 0.3436);
+    setprop("/controls/flight/fcs/gains/afcs/fps-roll-brake-freq", 6);
+    setprop("/controls/flight/fcs/gains/afcs/fps-roll-coeff", 1.5);
     return obj;
   },
 
@@ -103,81 +167,12 @@ var AFCS = {
   # auto hover : locks vBody_fps and uBody_fps regardless of wind speed/direction
   # 
   autoHover : func(axis, input) {
-    var position = getprop("/orientation/" ~ axis ~ "-deg");
-    var body_fps = 0;
-    var last_body_fps = me.last_body_fps[axis];
-    var reaction_gain = 0;
-    var heading = getprop("/orientation/heading-deg");
-    var wind_speed_fps = getprop("/environment/wind-speed-kt") * 1.6878099;
-    var wind_direction = getprop("/environment/wind-from-heading-deg");
-    var wind_direction -= heading;
-    var rate = getprop("/orientation/" ~ axis ~ "-rate-degps");
-    var gear_pos = getprop("/gear/gear[0]/compression-norm") + getprop("/gear/gear[1]/compression-norm");
-    var counter_fps = 0;
-    if (axis == 'roll') {
-      var target_pos = -0.8;
-      var brake_deg = 0;
-      body_fps = getprop("/velocities/vBody-fps");
-      wind_fps = math.sin(wind_direction / 180 * math.pi) * wind_speed_fps; 
-      var brake_freq = getprop("/controls/flight/fcs/gains/afcs/fps-roll-brake-freq");
-      body_fps -= wind_fps;
-      var dfps = body_fps - me.last_body_fps[axis];
-      var fps_roll_coeff = getprop("/controls/flight/fcs/gains/afcs/fps-roll-coeff");
-      target_pos -= int(body_fps * 100) / 100 * fps_roll_coeff;
-      if (gear_pos > 0.0 and position > 0) {
-        target_pos -= position * gear_pos / 5;
-      }
-      reaction_gain = getprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-roll");
-      if (math.abs(position + rate / brake_freq * 2) > math.abs(target_pos)) {
-        if (math.abs(dfps) > 1) {
-          dfps = 1;
-        }
-        brake_deg = (target_pos - (position + rate / brake_freq)) * math.abs(dfps * 10) / brake_freq;
-      }
-      var roll_reaction_gain = getprop("/controls/flight/fcs/gains/afcs/reaction-gain-roll");
-      counter_fps = (target_pos + brake_deg) * reaction_gain;
-      # tmporary
-      setprop("/controls/flight/fcs/afcs/ah-vbody-fps", body_fps);
-      setprop("/controls/flight/fcs/afcs/ah-vbody-wind-fps", wind_fps);
-      setprop("/controls/flight/fcs/afcs/ah-roll-target-deg", target_pos);
-      setprop("/controls/flight/fcs/afcs/ah-roll-rate", rate);
-      setprop("/controls/flight/fcs/afcs/ah-delta-vbodyfps", dfps);
-      setprop("/controls/flight/fcs/afcs/ah-roll-brake-deg", brake_deg);
-      
-    } elsif (axis == 'pitch') {
-      var target_pos = 0;
-      var brake_deg = 0;
-      body_fps = getprop("/velocities/uBody-fps");
-      var wind_fps = math.cos(wind_direction / 180 * math.pi) * wind_speed_fps;
-      body_fps -= wind_fps;
-      var brake_freq = getprop("/controls/flight/fcs/gains/afcs/fps-pitch-brake-freq");
-      var dfps = body_fps - me.last_body_fps[axis];
-      var fps_coeff = getprop("/controls/flight/fcs/gains/afcs/fps-pitch-coeff");
-      target_pos += int(body_fps * 10) / 10 * fps_coeff;
-
-      if (math.abs(position + rate / brake_freq * 5) > math.abs(target_pos)) {
-        if (math.abs(dfps) > 1) {
-          dfps = 1;
-        }
-        brake_deg = (target_pos - (position + rate / brake_freq)) * math.abs(dfps * 10) / brake_freq;
-      }
-
-      reaction_gain = getprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-pitch");
-      counter_fps = (body_fps + brake_deg) * reaction_gain;
-      setprop("/controls/flight/fcs/afcs/ah-ubody-fps", body_fps);
-      setprop("/controls/flight/fcs/afcs/ah-ubody-wind-fps", wind_fps);
-      setprop("/controls/flight/fcs/afcs/ah-pitch-target-deg", target_pos);
-      setprop("/controls/flight/fcs/afcs/ah-pitch-rate", rate);
-      setprop("/controls/flight/fcs/afcs/ah-delta-ubodyfps", dfps);
-      setprop("/controls/flight/fcs/afcs/ah-pitch-brake-deg", brake_deg);
-    } else {
+    if (axis == 'yaw') {
       return input;
+    } else {
+      var offset_deg = (axis == 'roll') ? -0.8 : 0.4;
+      return me.calcCounterBodyFPS(axis, input, offset_deg);
     }
-    counter_fps = me.limit(counter_fps, 1.0);
-    setprop("/controls/flight/fcs/afcs/counter-fps-" ~ axis, counter_fps);
-    me.last_pos[axis] = position;
-    me.last_body_fps[axis] = body_fps;
-    return me.limit(counter_fps + input * 0.2, 1.0);
   },
 
   altitudeLock : func(axis, input) {
@@ -237,7 +232,6 @@ var SAS = {
   # 
   calcGain : func(axis) {
     var mach = getprop("/velocities/mach");
-#    var initial_gain = me.initial_gains[axis];
     var initial_gain = getprop("/controls/flight/fcs/gains/sas/" ~ axis);
     var gain = initial_gain - 0.1 * mach * mach;
     if (math.abs(gain) < math.abs(initial_gain) * 0.01 or gain * initial_gain < 0) {
@@ -311,10 +305,13 @@ var CAS = {
   calcSideSlipAdjustment : func {
     var mach = getprop("/velocities/mach");
     var slip = getprop("/orientation/side-slip-deg");
-    if (mach < 0.045) { # works only if air speed > 30kt
+    if (mach < 0.015) { # works only if air speed > 10kt
       slip = 0;
     }
     var anti_slip_gain = getprop("/controls/flight/fcs/gains/cas/output/anti-side-slip-gain");
+    var roll_deg = getprop("/orientation/roll-deg");
+    var gain_adjuster = me.min(math.abs(mach) / 0.060, 1) * me.limit(0.2 + math.sqrt(math.abs(roll_deg)/10), 3);
+    anti_slip_gain *= gain_adjuster;
     setprop("/controls/flight/fcs/cas/anti-side-slip", slip * anti_slip_gain);
     return slip * anti_slip_gain;
   },
@@ -322,6 +319,7 @@ var CAS = {
   # FIXME: command for CAS is just a temporal one
   calcCommand: func (axis, input) {
     var output = 0;
+    var mach = getprop("/velocities/mach");
     var input_gain = me.calcGain(axis);
     var output_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis);
     var target_rate = input * input_gain;
@@ -337,6 +335,10 @@ var CAS = {
          output = drate * output_gain;
        } else {
          output = me.calcAttitudeCommand(axis);
+      }
+      if (axis == 'roll' and math.abs(mach) < 0.035) {
+        # FIXME: I don't know if OH-1 has this one
+        output += me.calcCounterBodyFPS(axis, input, -0.8);
       }
     } elsif (axis == 'yaw') {
       output = drate * output_gain + me.calcSideSlipAdjustment();
@@ -355,10 +357,11 @@ var CAS = {
     var output_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis);
     var brake_freq = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis ~ "-brake-freq");
     var brake_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis ~ "-brake");
+    var trim = getprop("/controls/flight/" ~ me.axis_conv[axis] ~ "-trim");
 
     var current_deg = getprop("/orientation/" ~ axis ~ "-deg");
     var rate = getprop("/orientation/" ~ axis ~ "-rate-degps");
-    var target_deg = me.read(axis) * input_gain;
+    var target_deg = (me.read(axis) + trim) * input_gain;
     var command_deg = 0;
     if (target_deg != 0) {
       command_deg = (0.094 * math.ln(math.abs(target_deg)) + 0.53) * target_deg;
@@ -381,29 +384,6 @@ var CAS = {
     setprop(monitor_prefix ~ "-rate", -rate);
 
     return (error_deg + brake_deg) * output_gain;
-  },
-
-
-  calcCounterVBodyFPS : func(input) {
-    var limit = 0.2;
-    if (math.abs(input) > 0.1) {
-      return 0;
-    }
-    var output_gain = getprop("/controls/flight/fcs/gains/cas/output/roll");
-    var heading = getprop("/orientation/heading-deg");
-    var wind_speed_fps = getprop("/environment/wind-speed-kt") * 1.6878099;
-    var wind_direction = getprop("/environment/wind-from-heading-deg");
-    var wind_direction -= heading;
-    var vbody_fps = getprop("/velocities/vBody-fps");
-    vbody_fps -= math.sin(wind_direction / 180 * math.pi) * wind_speed_fps;      
-    var counterReaction = - vbody_fps * 1.5 * output_gain;
-    setprop("/controls/flight/fcs/counter-reaction-vbody-fps", counterReaction);
-    if (counterReaction > 0.2) {
-      counterReaction = 0.2;
-    } elsif (counterReaction < -0.2) {
-      counterReaction = -0.2;
-    }
-    return counterReaction ;
   },
 
   # FixMe: gain should be calculated using both speed and dynamic pressure
