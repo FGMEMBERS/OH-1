@@ -92,7 +92,7 @@ var FCSFilter = {
     body_fps -= wind_fps;
     var dfps = body_fps - me.last_body_fps[axis];
     var fps_coeff = getprop("/controls/flight/fcs/gains/afcs/fps-" ~ axis ~ "-coeff");
-    target_pos -= int(body_fps * 10) / 10 * fps_coeff;
+    target_pos -= int(body_fps * 100) / 100 * fps_coeff;
     if (axis == 'roll' and gear_pos > 0.0 and position > 0) {
       target_pos -= position * gear_pos / 5;
     }
@@ -103,8 +103,7 @@ var FCSFilter = {
         dfps = 1;
       }
       var error_deg = target_pos - position;
-#      brake_deg = (error_deg - rate / brake_freq)) * math.abs(dfps * 10) * brake_gain;
-      brake_deg = (error_deg - rate / brake_freq) * math.abs(error_deg) * brake_gain;
+      brake_deg = (error_deg - rate / brake_freq) * math.abs(dfps * 10) * brake_gain;
       if (target_pos > 0) {
         brake_deg = me.min(brake_deg, 0);
       } else {
@@ -136,14 +135,16 @@ var AFCS = {
     var obj = FCSFilter.new(input_path, output_path);
     obj.parents = [FCSFilter, AFCS];
     setprop("/controls/flight/fcs/auto-hover-enabled", 0);
-    setprop("/controls/flight/fcs/gains/afcs/fps-brake-gain-pitch", 0.06);
-    setprop("/controls/flight/fcs/gains/afcs/fps-brake-gain-roll", 0.025);
-    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-brake-freq", 8);
-    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-coeff", -0.9);
-    setprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-pitch", -1.83);
+    setprop("/controls/flight/fcs/gains/afcs/fps-brake-gain-pitch", 1.8);
+    setprop("/controls/flight/fcs/gains/afcs/fps-brake-gain-roll", 0.8);
+    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-brake-freq", 3);
+    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-coeff", -0.95);
+    setprop("/controls/flight/fcs/gains/afcs/fps-pitch-offset-deg", 0.9);
+    setprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-pitch", -0.8);
     setprop("/controls/flight/fcs/gains/afcs/fps-reaction-gain-roll", 0.3436);
-    setprop("/controls/flight/fcs/gains/afcs/fps-roll-brake-freq", 6);
-    setprop("/controls/flight/fcs/gains/afcs/fps-roll-coeff", 1.5);
+    setprop("/controls/flight/fcs/gains/afcs/fps-roll-brake-freq", 8);
+    setprop("/controls/flight/fcs/gains/afcs/fps-roll-coeff", 0.8);
+    setprop("/controls/flight/fcs/gains/afcs/fps-roll-offset-deg", -0.8);
     return obj;
   },
 
@@ -170,7 +171,7 @@ var AFCS = {
     if (axis == 'yaw') {
       return input;
     } else {
-      var offset_deg = (axis == 'roll') ? -0.8 : 0.4;
+      var offset_deg = getprop("/controls/flight/fcs/gains/afcs/fps-" ~ axis ~ "-offset-deg");
       return me.calcCounterBodyFPS(axis, input, offset_deg);
     }
   },
