@@ -539,9 +539,14 @@ var cas_output_gains = {'roll' : 0.06, 'pitch' : -0.1, 'yaw' : 0.5,
 var update = func {
   count += 1;
   # AFCS, CAS, and SAS run at 60Hz
-  if (math.mod(count, 2) == 0) {
+  rpm = getprop("/rotors/main/rpm");
+  # AFCS, CAS, and SAS run at 60Hz only when engine rpm > 1
+  # this rpm filter prevents CAS/SAS work when engine is not running,
+  # which may cause Nasal runtime error
+  if (math.mod(count, 2) == 0 or rpm < 10) {
     return;
   }
+
   cas.apply('roll');
   cas.apply('pitch');
   cas.apply('yaw');
