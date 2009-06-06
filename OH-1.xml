@@ -95,7 +95,7 @@
 
 
 	<rotorgear
-	  max-power-engine="1185"
+	  max-power-engine="2370"
 	  max-power-rotor-brake="100"
 	  rotorgear-friction="1.4"
 	  engine-prop-factor="0.005"
