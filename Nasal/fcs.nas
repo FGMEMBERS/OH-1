@@ -16,7 +16,16 @@ var debugEnabled = func() {
   }
 }
 
+#
+# FCSFilter - base class for FCS components like CAS and SAS
+#
 var FCSFilter = {
+  #
+  # new - constructor
+  # input_path: a property path for a filter input
+  #             nil is equivalent to "/controls/flight/"
+  # output_path: a property path for a filter output
+  # 
   new : func(input_path, output_path) {
     var obj = { parents : [FCSFilter], 
                 input_path : input_path,
@@ -28,11 +37,16 @@ var FCSFilter = {
     return obj;
   },
 
+  #
+  # updateSensitivities: read sensitivitiy values for all axis from the property
+  #
   updateSensitivities : func() {
     me.sensitivities = props.globals.getNode("/controls/flight/fcs/gains/sensitivities").getValues();
   },
 
-  # read input command for a given axis
+  #
+  # read - gets input command for a given axis from input_path
+  # 
   read : func(axis) {
     if (me.input_path == nil or me.input_path == "") {
       return getprop("/controls/flight/" ~ me.axis_conv[axis]);
@@ -42,8 +56,10 @@ var FCSFilter = {
     }
   },
 
-  # write output command for a given axis
+  # 
+  # write - outputs command for a given axis into output_path
   # this will be the output of an next command filter (like SAS)
+  #
   write : func(axis, value) {
     if (me.output_path == nil or me.output_path == '') {
       setprop("/controls/flight/fcs/" ~ axis, me.limit(value, 1.0));
@@ -52,6 +68,10 @@ var FCSFilter = {
     }
   },
 
+  #
+  # toggleFilterStatus - toggles engage/disengage FCS function
+  # name: FCS filter name; one of /controls/flight/fcs/switches/*
+  # 
   toggleFilterStatus : func(name) {
     var messages = ["disengaged", "engaged"];
     var path = "/controls/flight/fcs/switches/" ~ name;
@@ -60,11 +80,19 @@ var FCSFilter = {
     screen.log.write(name ~ " " ~ messages[1 - status]);
   },
 
+  #
+  # getStatus - returns 1 if a given function is engaged
+  # name: FCS filter name; one of /controls/flight/fcs/switches/*
+  #
   getStatus : func(name) {
     var path = "/controls/flight/fcs/switches/" ~ name;
     return getprop(path);
   },
 
+  #
+  # limit - cut out a given value between +range to -range
+  # value: number to be adjusted
+  # range: absolute number for specifying the range
   limit : func(value, range) {
     if (value > range) {
       return range;
@@ -82,6 +110,12 @@ var FCSFilter = {
     return (val1 > val2) ? val2 : val1;
   },
 
+  #
+  # calcCounterBodyFPS - calculates counter-force command to kill movement in each axis
+  # axis: one of 'roll', 'pitch', or 'yaw'
+  # input: input (0.0 - 1.0) for a given axis
+  # offset_deg: 
+  # 
   calcCounterBodyFPS : func(axis, input, offset_deg) {
     var position = getprop("/orientation/" ~ axis ~ "-deg");
     var body_fps = 0;
@@ -146,7 +180,7 @@ var FCSFilter = {
 };
 
 #
-# AFCS : Automatic Flight Control System
+# AFCS - Automatic Flight Control System
 #
 var AFCS = {
   new : func(input_path, output_path) {
@@ -155,6 +189,9 @@ var AFCS = {
     return obj;
   },
 
+  #
+  # toggle* - I/F methods for Instruments
+  #
   toggleAutoHover : func() {
     me.toggleFilterStatus("auto-hover");
   },
@@ -172,7 +209,7 @@ var AFCS = {
   },
 
   # 
-  # auto hover : locks vBody_fps and uBody_fps regardless of wind speed/direction
+  # auto hover - locks vBody_fps and uBody_fps regardless of wind speed/direction
   # 
   autoHover : func(axis, input) {
     if (axis == 'yaw') {
@@ -193,6 +230,10 @@ var AFCS = {
     return input;
   },
 
+  #
+  # applying all AFCS functions
+  # only auto hover is available at this moment
+  #
   apply : func(axis) {
     var input = me.read(axis);
     var hover_status = me.getStatus("auto-hover");
@@ -210,11 +251,8 @@ var AFCS = {
 var SAS = {
   # 
   # new
-  #   authority_limit: shows how much SAS can take over control
-  #                    0 means no stability control, 1.0 means SAS fully takes over pilot control
   #   input_path: is a base path to input axis; nil for using raw input from KB/JS
   #   output_path: is a base path to output axis; nis for using /controls/flight/fcs
-  # 
   #   with input_path / output_path, you can connect SAS, CAS, and more control filters
   #
   new : func(input_path, output_path) {
@@ -241,6 +279,9 @@ var SAS = {
     return gain;
   }, 
 
+  #
+  # calcAuthorityLimit - returns SAS authority limit using a given limit and mach number
+  #
   calcAuthorityLimit : func() {
     var mach = getprop("/velocities/mach");
     var min_mach = 0.038;
@@ -301,6 +342,9 @@ var CAS = {
     return math.abs(math.sin(position / 180 * math.pi)) / 6;
   },
 
+  #
+  # calcHeadingAdjustment - returns roll axis output for stabilizing heading
+  #
   calcHeadingAdjustment : func {
     if (getprop("/controls/flight/fcs/switches/heading-adjuster") == 1) {
       var gain = getprop("/controls/flight/fcs/gains/cas/output/heading-adjuster-gain");
@@ -313,6 +357,9 @@ var CAS = {
     }
   },
 
+  #
+  # calcSideSlipAdjustment - returns yaw axis output for preventing side slip
+  #
   calcSideSlipAdjustment : func {
     if (getprop("/controls/flight/fcs/switches/sideslip-adjuster") == 0) {
       return 0;
@@ -333,6 +380,9 @@ var CAS = {
     return slip * anti_slip_gain;
   },
   
+  #
+  # isInverted - returns 1 if aircraft is inverted (roll > 90 or roll < -90)
+  #
   isInverted : func() {
     var roll_deg = getprop("/orientation/roll-deg");
     if (roll_deg > 90 or roll_deg < -90)
@@ -342,6 +392,9 @@ var CAS = {
   },
 
   # FIXME: command for CAS is just a temporal one
+  #
+  # calcCommand - returns CAS output for each axis
+  #
   calcCommand: func (axis, input) {
     var output = 0;
     var mach = getprop("/velocities/mach");
@@ -388,6 +441,10 @@ var CAS = {
     me.toggleFilterStatus("cas");
   },
 
+  #
+  # calcAttitudeCommand - Attitude base Augmentation output for roll and pitch axis
+  # axis: either 'roll' or 'pitch'
+  #
   calcAttitudeCommand : func(axis) {
     var input_gain = getprop("/controls/flight/fcs/gains/cas/input/attitude-" ~ axis);
     var output_gain = getprop("/controls/flight/fcs/gains/cas/output/" ~ axis);
@@ -431,7 +488,10 @@ var CAS = {
     return (error_deg + brake_deg) * output_gain;
   },
 
+  #
+  # calcGain - returns gain for a given axis using a given gain and speed
   # FixMe: gain should be calculated using both speed and dynamic pressure
+  #
   calcGain : func(axis) {
     var mach = getprop("/velocities/mach");
     var input_gain = getprop("/controls/flight/fcs/gains/cas/input/" ~ axis);
@@ -450,6 +510,11 @@ var CAS = {
     return gain;
   }, 
 
+  #
+  # apply - public method that outputs CAS command for a given axis to output_path
+  #         input is read from input_path
+  # axis: one of 'roll', 'pitch', or 'yaw'
+  #
   apply : func(axis) {
     me.updateSensitivities();
     var input = me.read(axis);
@@ -475,17 +540,15 @@ var Stabilator = {
     return obj;
   },
 
-  toggleManual : func {
+  toggleEnable : func {
     var status = getprop("/controls/flight/fcs/switches/auto-stabilator");
     getprop("/controls/flight/fcs/switches/auto-stabilator", 1 - status);
   },
   
-#  apply : func(delta) {
-#    setprop("/controls/flight/fcs/switches/auto-stabilator", 0);
-#    var value = getprop("/controls/flight/fcs/stabilator");
-#    getprop("/controls/flight/fcs/stabilator", value + delta);
-#  },
-
+  #
+  # calcPosition - returns stabilator position (output) depending on
+  #                predefined gain table and mach number
+  #
   calcPosition : func() {
     var speed = getprop("/velocities/mach") / 0.001497219; # in knot
     var index = int(math.abs(speed) / 10);
@@ -502,6 +565,10 @@ var Stabilator = {
     return position;
   },
 
+  #
+  # apply - public method for Stabilator control
+  # no axis is required since it is only for hstab
+  # 
   apply : func() {
     var status = getprop("/controls/flight/fcs/switches/auto-stabilator");
     if (status == 0) {
@@ -528,6 +595,10 @@ var TailRotorCollective = {
     return obj;
   },
 
+  #
+  # apply - public method for tail rotor adjuster
+  # no axis is required
+  #
   apply : func() {
     var throttle = me.read("throttle");
     var pedal_pos_deg = getprop("/controls/flight/fcs/yaw");
@@ -573,11 +644,15 @@ var stabilator = nil;
 var tail = nil;
 var count = 0;
 
+#
+# AFCS main loop
+# This runs at 60Hz (on every other update of /rotors/main/cone-deg)
+#
 var update = func {
   count += 1;
   # AFCS, CAS, and SAS run at 60Hz
   rpm = getprop("/rotors/main/rpm");
-  # AFCS, CAS, and SAS run at 60Hz only when engine rpm > 1
+  # AFCS, CAS, and SAS run at 60Hz only when engine rpm >= 10
   # this rpm filter prevents CAS/SAS work when engine is not running,
   # which may cause Nasal runtime error
   if (math.mod(count, 2) == 0 or rpm < 10) {
@@ -682,6 +757,9 @@ var default_fcs_params = {
   }
 };
  
+#
+# initialize - creates AFCS components and invokes AFCS main loop
+#
 var initialize = func {
   cas = CAS.new(nil, "/controls/flight/fcs/cas");
   afcs = AFCS.new("/controls/flight/fcs/cas", "/controls/flight/fcs/afcs");
@@ -691,11 +769,15 @@ var initialize = func {
   setlistener("/rotors/main/cone-deg", update);
 }
 
-# Stores default AFCS parameters
+#
+# Stores default AFCS parameters at startup
+#
 var confNode = props.globals.getNode("/controls/flight/fcs", 1);
 confNode.setValues(default_fcs_params);
 
+#
 # fcs-initialized signal must be set by per-aircraft nasal script
 # to show that FCS configuration parameters are set
+#
 _setlistener("/sim/signals/fcs-initialized", initialize);
 

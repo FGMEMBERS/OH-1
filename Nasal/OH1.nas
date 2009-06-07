@@ -500,4 +500,3 @@ var setAFCSConfig = func() {
 
 _setlistener("/sim/signals/fdm-initialized", setAFCSConfig);
 
-
