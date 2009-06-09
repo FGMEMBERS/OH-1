@@ -450,8 +450,6 @@ var fcs_params = {
         'yaw' : 30, 
         'attitude-roll' : 80, 
         'attitude-pitch' : -80, 
-        'attitude-control-threshold' : 0.7,
-        'rate-control-threshold' : 0.95,
         'anti-side-slip-min-speed' : 0.015
       },
       'output' : {
@@ -483,6 +481,7 @@ var fcs_params = {
     'auto-hover' : 0, 
     'cas' : 1, 
     'sas' : 1, 
+    'attitude-control' : 1,
     'auto-stabilator' : 1, 
     'sideslip-adjuster' : 1, 
     'tail-rotor-adjuster' : 1,
@@ -499,4 +498,8 @@ var setAFCSConfig = func() {
 }
 
 _setlistener("/sim/signals/fdm-initialized", setAFCSConfig);
+_setlistener("/sin/reinit", func {
+    var confNode = props.globals.getNode("/controls/flight/fcs", 1);
+    confNode.setValues(fcs_params);
+  });
 

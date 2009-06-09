@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<PropertyList> 
+  <path>afcs.ac</path>
+
+  <animation>
+    <type>textranslate</type>
+    <object-name>SCASButton</object-name>
+    <property>controls/flight/fcs/switches/cas</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+  <animation>
+    <type>textranslate</type>
+    <object-name>HVRHoldButton</object-name>
+    <property>controls/flight/fcs/switches/auto-hover</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+  <animation>
+    <type>textranslate</type>
+    <object-name>ATTDAGMTButton</object-name>
+    <property>controls/flight/fcs/switches/attitude-control</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+  <!-- SCAS Button -->
+
+  <!-- SCAS Button -->
+  <animation>
+    <name>SCAS</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>SCASButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.cas.toggleEnable(); OH1.sas.toggleEnable();</script>
+      </binding>
+    </action>
+  </animation>
+
+  <!-- Auto Hover Button -->
+  <animation>
+    <name>AutoHover</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>HVRHoldButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.afcs.toggleAutoHover()</script>
+      </binding>
+    </action>
+  </animation>
+
+  <!-- Attitude Augmentation Button -->
+  <animation>
+    <name>AttitudeControl</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>ATTDAGMTButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.cas.toggleAttitudeControl()</script>
+      </binding>
+    </action>
+  </animation>
+
+
+</PropertyList>

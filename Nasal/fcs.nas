@@ -334,6 +334,8 @@ var CAS = {
     obj.parents = [FCSFilter, CAS];
     setprop("/autopilot/locks/altitude", '');
     setprop("/autopilot/locks/heading", '');
+    obj.setCASControlThresholds(); 
+    
     return obj;
   },
 
@@ -439,6 +441,34 @@ var CAS = {
 
   toggleEnable : func() {
     me.toggleFilterStatus("cas");
+  },
+
+  #
+  # toggle enable / disable attitude control 
+  # you can make similar function that changes parameters
+  # in attitude-control-limit and rate-control-limit
+  # at controls/flight/fcs/gains/cas/input
+  # CAS changes its behavior when roll/pitch axis inputs reaches each limit.
+  # e.g. when attitude-control-limit is 0.7 and rate-control-limit is 0.9,
+  # giving 0.6 for roll holds bank angle, 0.8 keeps roll rate, 
+  # and 1.0 makes roll at maximum roll rate. 
+  # Sets of initial values for these limits are stored at 
+  # controls/fcs/gains/cas/{attitude,rate}
+  #
+  toggleAttitudeControl : func() {
+    me.toggleFilterStatus("attitude-control");
+    me.setCASControlThresholds();
+  },
+
+  setCASControlThresholds : func()
+  {
+    if (me.getStatus("attitude-control") == 1) {
+      var params = props.globals.getNode("controls/flight/fcs/gains/cas/control/attitude").getValues();
+      props.globals.getNode("controls/flight/fcs/gains/cas/input").setValues(params);
+    } else {
+      var params = props.globals.getNode("controls/flight/fcs/gains/cas/control/rate").getValues();
+      props.globals.getNode("controls/flight/fcs/gains/cas/input").setValues(params);
+    }
   },
 
   #
@@ -701,7 +731,7 @@ var default_fcs_params = {
         'yaw' : 30, 
         'attitude-roll' : 80, 
         'attitude-pitch' : -80, 
-        'attitude-control-threshold' : 0.7, # input threshold that CAS changes attitude-base control to rate-base control
+        'attitude-control-threshold' : 0.0, # input threshold that CAS changes attitude-base control to rate-base control
         'rate-control-threshold' : 0.95,    # input threshold that CAS changes rate-base control to doing nothing
         'anti-side-slip-min-speed' : 0.015
       },
@@ -716,6 +746,17 @@ var default_fcs_params = {
         'anti-side-slip-gain' : -4.5,
         'heading-adjuster-gain' : -5,
         'heading-adjuster-limit' : 5,
+      },
+      'control' : { # configuration for CAS augumentation modes
+        'attitude' : { # Attitude control augmentation mode (e.g. ATTDAGMT button on OH-1)
+          # Note: attitude-control-threshold must be smaller than rate-control-threshold in any mode
+          'attitude-control-threshold' : 0.95, # Roll / Pitch attitude(angle) hold mode when 0 < input <= 0.95
+          'rate-control-threshold' : 1.0 # Rate hold mode when 0.95 < input <= 1.0
+        },
+        'rate' : { # Rate control augmentation mode
+          'attitude-control-threshold' : 0.0,
+          'rate-control-threshold' : 0.95 
+        },
       }
     },
     'sas' : { # gains for SAS
@@ -747,6 +788,7 @@ var default_fcs_params = {
     'auto-hover' : 0, 
     'cas' : 1, 
     'sas' : 1, 
+    'attitude-control' : 0,
     'auto-stabilator' : 1, 
     'sideslip-adjuster' : 1, 
     'tail-rotor-adjuster' : 1, 
@@ -766,6 +808,7 @@ var initialize = func {
   sas = SAS.new("/controls/flight/fcs/afcs", "/controls/flight/fcs");
   stabilator = Stabilator.new();
   tail = TailRotorCollective.new();
+  
   setlistener("/rotors/main/cone-deg", update);
 }
 

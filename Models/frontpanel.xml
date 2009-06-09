@@ -2,4 +2,50 @@
 
 <PropertyList>
   <path>frontpanel.ac</path>
+
+  <model>
+    <path>Aircraft/OH-1/Instruments/chronograph.xml</path>
+    <offsets>
+      <x-m>0.01</x-m>
+      <y-m>-0.369413</y-m>
+      <z-m>0.0617725</z-m>
+    </offsets>
+  </model>
+
+  <model>
+    <path>Aircraft/OH-1/Instruments/asi.xml</path>
+    <offsets>
+      <x-m>0.01</x-m>
+      <y-m>0.140407</y-m>
+      <z-m>0.286766</z-m>
+    </offsets>
+  </model>
+   
+  <model>
+    <path>Aircraft/OH-1/Instruments/adi.xml</path>
+    <offsets>
+      <x-m>0.05</x-m>
+      <y-m>0.217881</y-m>
+      <z-m>0.295513</z-m>
+    </offsets>
+  </model>
+   
+  <model>
+    <path>Aircraft/OH-1/Instruments/altimeter.xml</path>
+    <offsets>
+      <x-m>0.02</x-m>
+      <y-m>0.297853</y-m>
+      <z-m>0.286766</z-m>
+    </offsets>
+  </model>
+
+  <model>
+    <path>Aircraft/OH-1/Instruments/afcs.xml</path>
+    <offsets>
+      <x-m>0.03</x-m>
+      <y-m>-0.239814</y-m>
+      <z-m>0.209615</z-m>
+    </offsets>
+  </model>
+ 
 </PropertyList>
