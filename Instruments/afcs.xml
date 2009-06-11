@@ -2,6 +2,7 @@
 <PropertyList> 
   <path>afcs.ac</path>
 
+  <!-- SCAS Button -->
   <animation>
     <type>textranslate</type>
     <object-name>SCASButton</object-name>
@@ -14,6 +15,7 @@
     </axis>
   </animation>
 
+  <!-- Hover Hold Button -->
   <animation>
     <type>textranslate</type>
     <object-name>HVRHoldButton</object-name>
@@ -26,6 +28,7 @@
     </axis>
   </animation>
 
+  <!-- Attitude Augmentation Button -->
   <animation>
     <type>textranslate</type>
     <object-name>ATTDAGMTButton</object-name>
@@ -37,7 +40,19 @@
       <z>0</z>
     </axis>
   </animation>
-  <!-- SCAS Button -->
+
+  <!-- Backup SCAS Button / Indicator -->
+  <animation>
+    <type>textranslate</type>
+    <object-name>BU-SCASButton</object-name>
+    <property>controls/flight/fcs/switches/backup-mode</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
 
   <!-- SCAS Button -->
   <animation>
@@ -83,6 +98,22 @@
       <binding>
 	<command>nasal</command>
         <script>OH1.cas.toggleAttitudeControl()</script>
+      </binding>
+    </action>
+  </animation>
+
+  <!-- Backup SCAS Button -->
+  <animation>
+    <name>AttitudeControl</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>BU-SCASButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.backup.toggleBackupMode()</script>
       </binding>
     </action>
   </animation>

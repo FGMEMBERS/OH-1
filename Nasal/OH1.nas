@@ -456,12 +456,12 @@ var fcs_params = {
         'roll' : 0.06, 
         'pitch' : -0.1, 
         'yaw' : 0.5, 
-        'roll-brake-freq' : 10, 
-        'pitch-brake-freq' : 3, 
-        'roll-brake' : 0.4, 
-        'pitch-brake' : 6, 
+        'roll-brake-freq' : 5, 
+        'pitch-brake-freq' : 2, 
+        'roll-brake' : 0.8, 
+        'pitch-brake' : 12, 
         'anti-side-slip-gain' : -4.5,
-        'heading-adjuster-gain' : -8,
+        'heading-adjuster-gain' : -5,
         'heading-adjuster-limit' : 5 
       }
     },
@@ -485,7 +485,7 @@ var fcs_params = {
     'auto-stabilator' : 1, 
     'sideslip-adjuster' : 1, 
     'tail-rotor-adjuster' : 1,
-    'heading-adjuster' : 1,
+    'heading-adjuster' : 0,
     'debug' : 1  # Add this only when you are adjusting FCS parameters
   }
 };

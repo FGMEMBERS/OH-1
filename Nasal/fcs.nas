@@ -16,6 +16,10 @@ var debugEnabled = func() {
   }
 }
 
+var dumpParameters = func() {
+  debug.dump(props.globals.getNode("/controls/flight/fcs/gains").getValues());
+}
+
 #
 # FCSFilter - base class for FCS components like CAS and SAS
 #
@@ -667,11 +671,91 @@ var TailRotorCollective = {
   }
 };
 
+# Back-up FCS
+# It automatically disable CAS and shifts to 
+# the backup mode (e.g. SAS only or direct link mode)
+# 
+var BackupFCS = {
+  new : func() {
+    var obj = { parents : [BackupFCS] };
+    obj.switches = {'cas' : 0, 'sas' : 1, 'attitude-control' : 0 }; # default backup switches
+    obj.normalSwitches = props.globals.getNode("/controls/flight/fcs/switches").getValues();
+    setprop("/controls/flight/fcs/failures/manual-backup-mode", 0);
+    setprop("/controls/flight/fcs/switches/backup-mode", 0);
+    return obj;
+  },
+
+  # checkFCSFailures - detects FCS failures
+  # returns 1 if failure (or manual backup mode) is detected, 0 otherwise
+  #
+  checkFCSFailures : func()
+  {
+    # not fully implemented yet
+    if (getprop("/controls/flight/fcs/failures/manual-backup-mode") == 1) {
+      return 1;
+    } else {
+      return 0;
+    }
+  },
+
+  #
+  # shiftToBackupMode - overwrites switches for force entering backup mode
+  # 
+  shiftToBackupMode : func() {
+    if (me.switches != nil) {
+      var switchNode = props.globals.getNode("/controls/flight/fcs/switches");
+      switchNode.setValues(me.switches);
+      setprop("/controls/flight/fcs/switches/backup-mode", 1);
+    }
+  },
+
+  #
+  # shiftToNormalMode - bring switches back to normal mode
+  # switches for normalMode are captured at BackupFCS.new
+  shiftToNormalMode : func() {
+    if (me.normalSwitches != nil) {
+      props.globals.getNode("/controls/flight/fcs/switches").setValues(me.normalSwitches);
+      setprop("/controls/flight/fcs/switches/backup-mode", 0);
+    }
+  },
+
+  #
+  # setBackupMode - specifies set of values on FCS switches 
+  # switches: hash of FCS switch values that will be set to
+  #           controls/flight/fcs/switches on backup mode
+  #           only values to be overwritten must be specified
+  #           e.g. {'cas' : 0, 'sas' : 1}
+  #
+  setBackupMode : func(switches) {
+    me.switches = switches
+  },
+  
+  #
+  # update - main I/F for BackupFCS
+  #
+  update : func() {
+    if (me.checkFCSFailures() == 1) {
+      me.shiftToBackupMode();
+    } elsif (getprop("/controls/flight/fcs/switches/backup-mode") == 1) {
+      me.shiftToNormalMode();
+    }
+  },
+
+  #
+  # toggleBackupMode - I/F for Cockpit Panel
+  #
+  toggleBackupMode : func() {
+    var mode = getprop("/controls/flight/fcs/failures/manual-backup-mode");
+    setprop("/controls/flight/fcs/failures/manual-backup-mode", 1 - mode);
+  }
+};
+
 var sas = nil;
 var cas = nil;
 var afcs = nil;
 var stabilator = nil;
 var tail = nil;
+var backup = nil;
 var count = 0;
 
 #
@@ -702,6 +786,7 @@ var update = func {
   sas.apply('yaw');
   stabilator.apply();
   tail.apply();
+  backup.update();
 }
 
 # Factory default configuration values
@@ -808,7 +893,7 @@ var initialize = func {
   sas = SAS.new("/controls/flight/fcs/afcs", "/controls/flight/fcs");
   stabilator = Stabilator.new();
   tail = TailRotorCollective.new();
-  
+  backup = BackupFCS.new(); 
   setlistener("/rotors/main/cone-deg", update);
 }
 
