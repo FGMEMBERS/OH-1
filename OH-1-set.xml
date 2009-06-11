@@ -408,7 +408,8 @@ EC 135 simulation config.
 		<OH1>
 			<file>Aircraft/OH-1/Nasal/OH1.nas</file>
 			<file>Aircraft/OH-1/Nasal/hsi.nas</file>
-			<file>Aircraft/OH-1/Nasal/fcs.nas</file>
+			<file>Aircraft/Generic/fcs.nas</file>
+			<file>Aircraft/OH-1/Nasal/fcs-config.nas</file>
 		</OH1>
 	</nasal>
 

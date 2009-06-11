@@ -129,19 +129,19 @@
 	</hstab>
 
 	<!-- left gear -->
-	<gear x="2.44" y="0.93" z="-0.50" compression="0.30" spring="0.7" damp="2.8" sfric="0.7" dfric="0.4">
+	<gear x="2.44" y="0.93" z="-0.50" compression="0.30" spring="0.7" damp="2.8" sfric="1.4" dfric="0.9">
           <control-input axis="/controls/gear/brake-left" control="BRAKE"/>
           <control-input axis="/controls/gear/brake-parking" control="BRAKE" split="true"/>
         </gear>
 
 	<!-- right gear -->
-	<gear x="2.44" y="-0.93" z="-0.50" compression="0.30" spring="0.7" damp="2.8" sfric="0.7" dfric="0.4">
+	<gear x="2.44" y="-0.93" z="-0.50" compression="0.30" spring="0.7" damp="2.8" sfric="1.4" dfric="0.9">
           <control-input axis="/controls/gear/brake-right" control="BRAKE"/>
           <control-input axis="/controls/gear/brake-parking" control="BRAKE" split="true"/>
         </gear>
 
 	<!-- tail gear -->
-	<gear x="-4.84" y="0" z="-0.45"  compression="0.3" spring="0.7" damp="2.8" sfric="0.6" dfric="0.2"/>
+	<gear x="-4.84" y="0" z="-0.45"  compression="0.3" spring="0.7" damp="2.8" sfric="1.6" dfric="0.9"/>
 
 	<tank x="3.39" y="0" z="-.31" capacity="75"/>
 	<tank x="3.47" y="0" z="-.31" capacity="75"/>
