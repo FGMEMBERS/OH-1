@@ -59,12 +59,12 @@ var setAFCSConfig = func() {
   setprop("/sim/signals/fcs-initialized", 1);
 }
 
-_setlistener("/sim/signals/fdm-initialized", setAFCSConfig);
+setlistener("/sim/signals/fdm-initialized", setAFCSConfig);
 
 #
 # This will reinitialize the parameters in reinitializing FG.
 #
-_setlistener("/sim/signals/reinit", func {
+setlistener("/sim/signals/reinit", func {
     var confNode = props.globals.getNode("/controls/flight/fcs", 1);
     confNode.setValues(fcs_params);
   });
