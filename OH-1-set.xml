@@ -1,0 +1,423 @@
+<?xml version="1.0"?>
+<!--
+************************************************************************
+EC 135 simulation config.
+
+************************************************************************
+-->
+
+<PropertyList>
+	<sim>
+		<description>Kawasaki OH-1 Ninja</description>
+		<author>Tatsuhiro Nishioka</author>
+		<status>development</status>
+		<license>GPL v2</license>
+		<aircraft-version>0.1</aircraft-version>
+
+		<flight-model>yasim</flight-model>
+		<aero>OH-1</aero>
+		<fuel-fraction>0.8</fuel-fraction>
+
+		<startup>
+			<splash-texture>Aircraft/OH-1/splash.rgb</splash-texture>
+		</startup>
+
+		<sound>
+			<path>Aircraft/bo105/Sounds/sound.xml</path>
+		</sound>
+
+<!--
+		<instrumentation>
+			<path>Aircraft/OH-1/Instrumentation/instrumentation.xml</path>
+		</instrumentation>
+-->
+
+		<model>
+			<path archive="y">Aircraft/OH-1/Models/OH-1.xml</path>
+			<OH-1>
+				<state type="int">0</state>
+				<rotor-step-deg type="float">-1.0</rotor-step-deg>
+
+				<hide-gsdi>true</hide-gsdi>
+				<binocular_standart type="bool">true</binocular_standart>
+				<binocular_tri type="bool">false</binocular_tri>
+				<winch>false</winch>
+				<mirror>false</mirror>
+				<wirecutter_skid>false</wirecutter_skid>
+				<wirecutter_up>false</wirecutter_up>
+
+				<livery>
+					<variant type="string">dhecz</variant>
+
+
+					<material>
+						<fuselage>
+							<texture>fuselage.dhecz.rgb</texture>
+						</fuselage>
+
+						<fenestron>
+							<texture>fenestron.dhecz.rgb</texture>
+						</fenestron>
+
+						<tail>
+							<texture>tail.dhecz.rgb</texture>
+						</tail>
+
+						<binocular>
+							<texture>binocular.adac.rgb</texture>
+						</binocular>
+
+						<binocular_tri>
+							<texture>binocular_tri.adac.rgb</texture>
+						</binocular_tri>
+
+						<binocular_standart>
+							<texture>dhecz.binocular_standart.rgb</texture>
+						</binocular_standart>
+
+						<wirecutter_up>
+							<texture>fuselage.dhecz.rgb</texture>
+						</wirecutter_up>
+
+						<wirecutter_down>
+							<texture>fuselage.dhecz.rgb</texture>
+						</wirecutter_down>
+
+						<wirecutter_skid>
+							<texture>fuselage.dhecz.rgb</texture>
+						</wirecutter_skid>
+
+						<rotorcap>
+							<texture>fuselage.dhecz.rgb</texture>
+						</rotorcap>
+
+						<plate>
+							<texture>fuselage.dhecz.rgb</texture>
+						</plate>
+
+
+						<skid>
+							<texture>fuselage.dhecz.rgb</texture>
+						</skid>
+
+						<reardoor_re>
+							<texture>fuselage.dhecz.rgb</texture>
+						</reardoor_re>
+
+						<reardoor_li>
+							<texture>fuselage.dhecz.rgb</texture>
+						</reardoor_li>
+
+						<backdoor_re_u>
+							<texture>fuselage.dhecz.rgb</texture>
+						</backdoor_re_u>
+
+						<backdoor_re_o>
+							<texture>binocular.adac.rgb</texture>
+						</backdoor_re_o>
+
+						<backdoor_li_u>
+							<texture>fuselage.dhecz.rgb</texture>
+						</backdoor_li_u>
+
+						<backdoor_li_o>
+							<texture>binocular.adac.rgb</texture>
+						</backdoor_li_o>
+
+						<frontdoor_li_u>
+							<texture>fuselage.dhecz.rgb</texture>
+						</frontdoor_li_u>
+
+						<frontdoor_li_o>
+							<texture>binocular.adac.rgb</texture>
+						</frontdoor_li_o>
+
+						<frontdoor_re_u>
+							<texture>fuselage.dhecz.rgb</texture>
+						</frontdoor_re_u>
+
+						<frontdoor_re_o>
+							<texture>binocular.adac.rgb</texture>
+						</frontdoor_re_o>
+
+					</material>
+				</livery>
+			</OH-1>
+		</model>
+
+		<!--view-->
+		<view n="0">
+			<name>Cockpit</name>
+			<type>lookfrom</type>
+			<internal type="bool">true</internal>
+			<config>
+				<x-offset-m type="double"> 0.00</x-offset-m>
+				<y-offset-m type="double"> 1.72</y-offset-m>
+				<z-offset-m type="double">-3.84</z-offset-m>
+				<pitch-offset-deg>-15</pitch-offset-deg>
+				<default-field-of-view-deg type="double">65.0</default-field-of-view-deg>
+			</config>
+		</view>
+
+		<view n="1">
+			<config>
+				<target-y-offset-m archive="y" type="double">1.8</target-y-offset-m>
+				<target-z-offset-m archive="y" type="double">2.7</target-z-offset-m>
+			</config>
+		</view>
+
+		<view n="2">
+			<config>
+				<target-y-offset-m archive="y" type="double">1.8</target-y-offset-m>
+				<target-z-offset-m archive="y" type="double">2.7</target-z-offset-m>
+			</config>
+		</view>
+
+		<view n="5">
+			<config>
+				<target-y-offset-m archive="y" type="double">1.8</target-y-offset-m>
+				<target-z-offset-m archive="y" type="double">2.7</target-z-offset-m>
+			</config>
+		</view>
+
+
+		<weight n="0">
+			<name>Pilot</name>
+			<weight-lb>180</weight-lb>
+			<max-lb>300</max-lb>
+		</weight>
+
+		<weight n="1">
+			<name>Co-Pilot</name>
+			<weight-lb>180</weight-lb>
+			<max-lb>300</max-lb>
+		</weight>
+
+		<weight n="2">
+			<name>Right Passenger</name>
+			<weight-lb>0</weight-lb>
+			<max-lb>300</max-lb>
+		</weight>
+
+		<weight n="3">
+			<name>Middle Passenger</name>
+			<weight-lb>0</weight-lb>
+			<max-lb>300</max-lb>
+		</weight>
+
+		<weight n="4">
+			<name>Left Passenger</name>
+			<weight-lb>0</weight-lb>
+			<max-lb>300</max-lb>
+		</weight>
+
+		<weight n="5">
+			<name>Load</name>
+			<weight-lb>0</weight-lb>
+			<max-lb>800</max-lb>
+		</weight>
+
+		<help>
+			<title>OH-1 - help</title>
+			<line></line>
+			<line>starting the engines -> press }-key</line>
+			<line>shut down the engines -> press {-key</line>
+			<line>toggle rotor brake -> press N-key</line>
+			<line>collective -> page up/down- keys</line>
+			<line>toggle enable SAS -> press Ctrl-d key</line>
+			<line>toggle enable CAS -> press Ctrl-e key</line>
+			<line>auto hover -> press Ctrl-f key</line>
+
+
+		</help>
+
+		<hitches>
+			<!-- make sure some properties do exist, when the list for multiplayer transfere is defined-->
+			<!-- they need to be in the same value, as they are initilized in the FDM, to get the same values after reset
+    should fix this somehow-->
+			<aerotow>
+				<tow>
+					<length type="float">60</length>
+					<elastic-constant type="float">10000</elastic-constant>
+					<weight-per-m-kg-m type="float">1</weight-per-m-kg-m>
+					<dist type="float">1</dist>
+					<connected-to-property-node type="bool"></connected-to-property-node>
+					<brake-force type="float">100000</brake-force>
+					<connected-to-ai-or-mp-callsign type ="string">*</connected-to-ai-or-mp-callsign>
+					<end-force-x type ="float">0</end-force-x>
+					<end-force-y type ="float">0</end-force-y>
+					<end-force-z type ="float">0</end-force-z>
+				</tow>
+				<speed-in-tow-direction type="float">0</speed-in-tow-direction>
+				<open type="bool">true</open>
+				<local-pos-x type="float">0</local-pos-x>
+				<local-pos-y type="float">0</local-pos-y>
+				<local-pos-z type="float">0</local-pos-z>
+				<is-slave type="bool">true</is-slave>
+			</aerotow>
+		</hitches>
+
+	</sim>
+
+	<controls>
+		<engines>
+			<engine n="0">
+				<magnetos>0</magnetos>
+			</engine>
+		</engines>
+
+
+		<lighting>
+			<strobe type="bool">true</strobe>
+			<beacon type="bool">true</beacon>
+			<nav-lights type="bool">true</nav-lights>
+		</lighting>
+		<flight>
+			<fcs>
+				<roll type="double">0.0</roll>
+				<pitch type="double">0.0</pitch>
+				<yaw type="double">0.0</yaw>
+			</fcs>
+		</flight>
+	</controls>
+
+	<instrumentation>
+		<gsdi>
+			<serviceable type="bool">true</serviceable>
+		</gsdi>
+		<hsi>
+			<serviceable type="bool" archive="y">true</serviceable>
+		</hsi>
+	</instrumentation>
+
+	<input>
+		<keyboard>
+
+			<!-- Livery Box -->
+			<key n="108">
+				<name>l</name>
+				<desc>Show livery select dialog</desc>
+				<binding>
+					<command>nasal</command>
+					<script>aircraft.livery.dialog.toggle()</script>
+				</binding>
+			</key>
+
+			<key n="78">
+				<name>N</name>
+				<desc>Toggle rotor brake</desc>
+				<binding>
+					<command>nasal</command>
+					<script>
+						var p = "/controls/rotor/brake";
+						setprop(p, !getprop(p));
+					</script>
+				</binding>
+			</key>
+
+			<key n="4">
+				<name>Ctrl-d</name>
+				<desc>Toggle SAS enable</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.sas.toggleEnable();</script>
+				</binding>
+			</key>
+
+			<key n="5">
+				<name>Ctrl-e</name>
+				<desc>Toggle CAS enable</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.cas.toggleEnable();</script>
+				</binding>
+			</key>
+
+			<key n="6">
+				<name>Ctrl-f</name>
+				<desc>Toggle AutoHover</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.afcs.toggleAutoHover();</script>
+				</binding>
+			</key>
+
+			<key n="110">
+				<name>n</name>
+				<desc>Apply rotor brake</desc>
+				<binding>
+					<command>nasal</command>
+					<script>interpolate("/controls/rotor/brake", 1.0, 2)</script>
+				</binding>
+				<mod-up>
+					<binding>
+						<command>nasal</command>
+						<script>interpolate("/controls/rotor/brake", 0.0, 2)</script>
+					</binding>
+				</mod-up>
+			</key>
+
+			<key n="123">
+				<name>{</name>
+				<desc>Shutdown Engines</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.engines(0)</script>
+				</binding>
+			</key>
+
+			<key n="125">
+				<name>}</name>
+				<desc>Start Engines</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.crashed=0; OH1.engines(1)</script>
+				</binding>
+			</key>
+
+			<key n="79">
+				<name>O</name>
+				<desc>Increase Stabilator</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.stabilator.apply(0.1)</script>
+				</binding>
+			</key>
+			<key n="111">
+				<name>o</name>
+				<desc>Decrease Stabilator</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.stabilator.apply(-0.1)</script>
+				</binding>
+			</key>
+			<key n="15">
+				<name>Ctrl-o</name>
+				<desc>Toggle manual stabilator</desc>
+				<binding>
+					<command>nasal</command>
+					<script>OH1.stabilator.toggleManual()</script>
+				</binding>
+			</key>
+
+		</keyboard>
+	</input>
+
+
+	<nasal>
+		<OH1>
+			<file>Aircraft/OH-1/Nasal/OH1.nas</file>
+			<file>Aircraft/OH-1/Nasal/hsi.nas</file>
+			<file>Aircraft/Generic/helicopter-fcs.nas</file>
+			<file>Aircraft/OH-1/Nasal/fcs-config.nas</file>
+		</OH1>
+	</nasal>
+
+
+	<rotors>
+		<main>
+			<rpm type="double">0</rpm>
+		</main>
+	</rotors>
+
+</PropertyList>

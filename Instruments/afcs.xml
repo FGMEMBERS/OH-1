@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<PropertyList> 
+  <path>afcs.ac</path>
+
+  <!-- SCAS Button -->
+  <animation>
+    <type>textranslate</type>
+    <object-name>SCASButton</object-name>
+    <property>controls/flight/fcs/switches/cas</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+  <!-- Hover Hold Button -->
+  <animation>
+    <type>textranslate</type>
+    <object-name>HVRHoldButton</object-name>
+    <property>controls/flight/fcs/switches/auto-hover</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+  <!-- Attitude Augmentation Button -->
+  <animation>
+    <type>textranslate</type>
+    <object-name>ATTDAGMTButton</object-name>
+    <property>controls/flight/fcs/switches/attitude-control</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+  <!-- Backup SCAS Button / Indicator -->
+  <animation>
+    <type>textranslate</type>
+    <object-name>BU-SCASButton</object-name>
+    <property>controls/flight/fcs/switches/backup-mode</property>
+    <factor>0.1328</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+  <!-- SCAS Button -->
+  <animation>
+    <name>SCAS</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>SCASButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.cas.toggleEnable(); OH1.sas.toggleEnable();</script>
+      </binding>
+    </action>
+  </animation>
+
+  <!-- Auto Hover Button -->
+  <animation>
+    <name>AutoHover</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>HVRHoldButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.afcs.toggleAutoHover()</script>
+      </binding>
+    </action>
+  </animation>
+
+  <!-- Attitude Augmentation Button -->
+  <animation>
+    <name>AttitudeControl</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>ATTDAGMTButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.cas.toggleAttitudeControl()</script>
+      </binding>
+    </action>
+  </animation>
+
+  <!-- Backup SCAS Button -->
+  <animation>
+    <name>AttitudeControl</name>
+    <type>pick</type>
+    <visible>true</visible>
+    <object-name>BU-SCASButton</object-name>
+    <action>
+      <button>0</button>
+      <repeatable>false</repeatable>
+      <binding>
+	<command>nasal</command>
+        <script>OH1.backup.toggleBackupMode()</script>
+      </binding>
+    </action>
+  </animation>
+
+
+</PropertyList>
